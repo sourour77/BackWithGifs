@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+
 from typing import List, Dict, Optional
 from datetime import date
-
+from pydantic import BaseModel, Field
 
 from ai_module.checkin_agent import (
     build_daily_checkin_output,
@@ -14,9 +14,10 @@ from ai_module.user_memory_db import (
     log_daily_activity,
     update_daily_summary,
     update_user_memory,
-    add_loyalty_points,
     log_weight,
     upsert_user_profile,
+    award_order_points,
+    award_loyalty_points,
 )
 
 from ai_module.dashboard import (
@@ -75,8 +76,8 @@ class CheckinRequest(BaseModel):
     target_weight: float | None = None
 
     sex: str | None = None
-    goals: list[str] = []
-    medical_conditions: list[str] = []
+    goals: list[str] = Field(default_factory=list)
+    medical_conditions: list[str] = Field(default_factory=list)
     language: str = "ar"
     daily_steps: int = 0
 class WeightRequest(BaseModel):
@@ -197,16 +198,12 @@ def create_checkin(request: CheckinRequest):
         profile_data,
     )
 
-    current_result = (
-        build_daily_checkin_output(
-            user_profile=user_profile,
-            meals_today=request.meals_today,
-            activity_today=(
-                request.activity_today
-            ),
-            mood=request.mood,
-            steps=request.daily_steps,
-        )
+    current_result = build_daily_checkin_output(
+        user_profile=user_profile,
+        meals_today=request.meals_today,
+        activity_today=request.activity_today,
+        mood=request.mood,
+        steps=request.daily_steps,
     )
 
     energy = current_result.get(
@@ -250,45 +247,46 @@ def create_checkin(request: CheckinRequest):
             },
         )
 
-    if request.activity_today.strip():
+    activity_text = (
+        request.activity_today or ""
+    ).strip().lower()
 
-           
+    no_activity_values = {
+        "",
+        "no activity",
+        "none", 
+        "nothing",
+        "pas d'activité",
+        "pas d activite",
+        "hata chay",
+        "7ata chay", 
+        "hata chy",
+        "7ata chy", 
+        "حتى شيء",
+        "لا شيء",
+    }
 
-        activity_text = (
-            request.activity_today
-            or ""
-        ).strip().lower()
-
-        no_activity_values = {
-            "",
-            "no activity",
-            "none",
-            "nothing",
-            "pas d'activité",
-            "pas d activite",
-            "hata chay",
-            "7ata chay",
-            "حتى شيء",
-            "لا شيء",
-        }
-
-        if activity_text not in no_activity_values:
-            log_daily_activity(
-                checkin["id"],
-                {
-                    "activity_type": request.activity_today,
-                    "description": request.activity_today,
-                    "duration_minutes": structured.get(
-                        "activity_duration_minutes"
-                    ),
-                    "intensity": structured.get(
-                        "activity_intensity"
-                    ),
-                    "estimated_calories_burned": structured.get(
-                        "estimated_activity_calories_burned"
-                    ),
-                },
-            )
+    if activity_text not in no_activity_values:
+        log_daily_activity(
+            checkin["id"],
+            {
+                "activity_type": request.activity_today,
+                "description": request.activity_today,
+                "duration_minutes": structured.get(
+                    "activity_duration_minutes"
+                ),
+                "intensity": structured.get(
+                    "activity_intensity"
+                ),
+            # Store only this workout.
+            # Step calories are calculated separately
+            # in the daily summary.
+                "estimated_calories_burned": structured.get(
+                    "estimated_workout_calories_burned",
+                    0,
+                ),
+            },
+        )
 
     memory_updates = current_result.get(
         "memory_updates",
@@ -306,17 +304,31 @@ def create_checkin(request: CheckinRequest):
         str(date.today()),
     )
 
-    loyalty = add_loyalty_points(
-        request.user_id,
-        10,
+    loyalty_result = award_loyalty_points(
+        user_code=request.user_id,
+        points=10,
+        transaction_type="daily_checkin",
+        reference_id=(
+            f"{request.user_id}_"
+            f"{date.today()}"
+        ),
+        description="Daily wellness check-in",
     )
 
     return {
         "current_checkin": current_result,
         "daily_summary": daily_summary,
-        "loyalty_points": loyalty.get(
-            "points",
-            0,
+        "loyalty_points": (
+            loyalty_result["loyalty"].get(
+                "points",
+                0,
+            )
+        ),
+        "points_awarded": (
+            loyalty_result.get(
+                "points_awarded",
+                0,
+            )
         ),
     }
 

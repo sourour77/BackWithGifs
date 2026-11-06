@@ -1,5 +1,6 @@
 from datetime import date
 import json
+import re
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
@@ -7,13 +8,108 @@ from food_db import estimate_meal_calories
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-def extract_checkin_with_llm(meals_today: str, activity_today: str, mood: str = "") -> dict:
+
+# Garde-fou sur les estimations LLM par aliment
+_MAX_ITEM_KCAL = 3000
+
+# Cache des estimations LLM pour les aliments absents de la base :
+# un même aliment décrit de la même façon garde la même valeur
+# (stabilité entre deux check-ins, pendant la vie du process).
+_LLM_ITEM_KCAL_CACHE: dict = {}
+
+
+def _msg(language: str, fr: str, en: str, ar: str) -> str:
+    if language == "fr":
+        return fr
+    if language == "en":
+        return en
+    return ar
+
+
+def _positive_or_none(value, maximum=None):
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if number <= 0:
+        return None
+    if maximum is not None and number > maximum:
+        return None
+    return number
+
+
+def _clean_food_items(raw_items) -> list:
+    """Uniformise la sortie du LLM (strings, champs manquants, types)."""
+    cleaned = []
+    for item in raw_items or []:
+        if isinstance(item, str):
+            item = {"name": item}
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").strip()
+        if not name:
+            continue
+        cleaned.append({
+            "name": name,
+            "portion": item.get("portion") or "medium",
+            "quantity": _positive_or_none(item.get("quantity"), 20),
+            "grams": _positive_or_none(item.get("grams"), 2000),
+            "kcal_estimate": _positive_or_none(item.get("kcal_estimate"), _MAX_ITEM_KCAL),
+        })
+    return cleaned
+
+
+# Séparateurs utilisés quand le LLM est indisponible
+# (on ne coupe PAS sur "avec" pour garder "couscous avec poulet" entier).
+_SPLIT_RE = re.compile(
+    r"\s*(?:,|;|\+|\n|/|\bet\b|\bou\b|\bw\b|\band\b|\bor\b|\s(?=و[^\s]))\s*",
+    re.IGNORECASE,
+)
+_LEADING_QTY_RE = re.compile(r"^\s*(\d+(?:[.,]\d+)?)\s*(?:x\s*)?(.+)$", re.IGNORECASE)
+
+
+def split_meals_text_fallback(meals_today: str) -> list:
+    """Découpage simple du texte libre, utilisé si l'appel LLM échoue,
+    pour que la table locale puisse quand même estimer les calories."""
+    items = []
+    for part in _SPLIT_RE.split(meals_today or ""):
+        part = (part or "").strip()
+        if part.startswith("و") and len(part) > 1:
+            part = part[1:]
+        if not part:
+            continue
+        quantity = None
+        match = _LEADING_QTY_RE.match(part)
+        if match:
+            quantity = float(match.group(1).replace(",", "."))
+            part = match.group(2).strip()
+        items.append({"name": part, "portion": "medium", "quantity": quantity, "grams": None})
+    return items
+
+
+def extract_checkin_with_llm(
+    meals_today: str,
+    activity_today: str,
+    mood: str = "",
+    language: str = "ar",
+    user_profile: dict | None = None,
+) -> dict:
+    """UN SEUL appel LLM : extraction + estimation par aliment + insight.
+    (avant : 2 appels séquentiels -> latence et coût divisés par ~2)."""
+    profile = user_profile or {}
+    compact_profile = {
+        "age": profile.get("age"),
+        "weight": profile.get("weight"),
+        "height": profile.get("height"),
+        "sex": profile.get("sex"),
+    }
+
     prompt = f"""
-You are a wellness data extraction assistant.
+You are a wellness data extraction assistant for a Tunisian wellness app.
 
 Extract structured signals from the user's daily check-in.
 
-Return ONLY valid JSON with this exact schema:
+Return ONLY a valid JSON object with this exact schema:
 {{
   "food_patterns": [],
   "food_items": [],
@@ -23,14 +119,25 @@ Return ONLY valid JSON with this exact schema:
   "last_detected_issue": null,
   "meal_summary": "",
   "activity_summary": "",
-  "mood": ""
+  "mood": "",
+  "estimated_calories_burned_today": null,
+  "insight_message": ""
 }}
 
-food_items: list of foods/dishes mentioned, one entry per dish, as:
-  {{"name": "<dish name, keep original language>", "portion": "small/medium/large"}}
-  - Infer portion from context (e.g. "beaucoup" -> large, "un peu" -> small).
+food_items: list of foods/dishes/drinks mentioned, one entry per dish, as:
+  {{"name": "<dish name, keep original language>",
+    "portion": "small/medium/large",
+    "quantity": <number of pieces/servings if stated, else null>,
+    "grams": <grams or ml if explicitly stated, else null>,
+    "kcal_estimate": <realistic total kcal for THIS item as eaten>}}
+  - Infer portion from context (e.g. "beaucoup", "barcha" -> large, "un peu", "chwaya" -> small).
   - If portion is not mentioned at all, use "medium".
-  - Split combined meals into separate items (e.g. "couscous poulet ou salade" -> two items).
+  - Split combined meals into separate items (e.g. "couscous poulet ou salade" -> two items),
+    but keep a dish and its main ingredient together ("couscous au poulet" = one item).
+  - Put the count in "quantity", not in "name" ("2 oeufs" -> name "oeufs", quantity 2).
+  - Include drinks with sugar or milk (thé, café, jus, soda) as items.
+  - kcal_estimate: typical Tunisian home cooking (generous olive oil), includes the quantity.
+    Never 0 for real food.
 
 Allowed food_patterns:
 - heavy_meals
@@ -66,6 +173,14 @@ Rules:
 - If walking/light movement → moderate
 - If gym/running/intense sport → high
 - Extract activity duration in minutes if mentioned. If not mentioned, return null.
+- estimated_calories_burned_today: rough TOTAL daily energy expenditure for this
+  user profile and activity (null if profile data is missing). It is only a fallback.
+- insight_message: one short, kind, non-medical sentence about today's habits,
+  without calorie numbers. Write it in this language: {language}
+  (fr = French, en = English, ar = Arabic/Tunisian Arabic).
+
+User profile:
+{json.dumps(compact_profile, ensure_ascii=False)}
 
 User meals today:
 {meals_today}
@@ -84,16 +199,25 @@ Mood:
                 {"role": "system", "content": "Return only valid JSON. No explanation."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0
+            temperature=0,
+            response_format={"type": "json_object"},
         )
 
         content = response.choices[0].message.content.strip()
-        return json.loads(content)
+        extracted = json.loads(content)
+        extracted["food_items"] = _clean_food_items(extracted.get("food_items"))
+
+        # Si le LLM n'a renvoyé aucun aliment alors que l'utilisateur a écrit
+        # quelque chose, on retombe sur le découpage local.
+        if not extracted["food_items"] and (meals_today or "").strip():
+            extracted["food_items"] = split_meals_text_fallback(meals_today)
+
+        return extracted
 
     except Exception:
         return {
             "food_patterns": detect_food_patterns(meals_today),
-            "food_items": [],
+            "food_items": split_meals_text_fallback(meals_today),
             "activity_level_today": detect_activity_level(activity_today),
             "activity_duration_minutes": None,
             "health_interests": detect_health_interests(meals_today),
@@ -101,7 +225,27 @@ Mood:
             "meal_summary": meals_today,
             "activity_summary": activity_today,
             "mood": mood,
+            "estimated_calories_burned_today": None,
+            "insight_message": "",
         }
+
+
+def _llm_kcal_for_unresolved(item: dict, extracted_item: dict | None) -> float | None:
+    """Valeur LLM pour un aliment absent de la base, avec cache de stabilité."""
+    cache_key = (
+        (item.get("item") or "").strip().lower(),
+        item.get("portion"),
+        item.get("quantity"),
+        item.get("grams"),
+    )
+    if cache_key in _LLM_ITEM_KCAL_CACHE:
+        return _LLM_ITEM_KCAL_CACHE[cache_key]
+
+    kcal = (extracted_item or {}).get("kcal_estimate")
+    if kcal is not None:
+        _LLM_ITEM_KCAL_CACHE[cache_key] = kcal
+    return kcal
+
 
 def estimate_daily_energy_with_llm(
     user_profile: dict,
@@ -109,88 +253,83 @@ def estimate_daily_energy_with_llm(
     activity_today: str,
     mood: str = "",
     food_items: list | None = None,
+    extracted: dict | None = None,
 ) -> dict:
+    """Nom conservé pour compatibilité. Ne fait plus d'appel LLM :
+    utilise la table locale + les estimations par aliment déjà fournies
+    par extract_checkin_with_llm()."""
     language = user_profile.get("language", "ar")
+    extracted = extracted or {}
+    food_items = food_items if food_items is not None else extracted.get("food_items", [])
 
-    # --- Step 1: local nutrition table for known dishes (deterministic) ---
+    # --- Step 1: local nutrition table (deterministic) ---
     local_result = estimate_meal_calories(food_items or [])
     known_calories = local_result["known_calories_total"]
-    unresolved_items = local_result["items_needing_llm_estimate"]
     table_confidence = local_result["confidence"]
 
-    # --- Step 2: LLM only fills the gaps (unknown foods + activity burn +
-    # a short human insight). Much smaller/cheaper prompt than before, and
-    # the calorie figure for known dishes no longer varies between calls. ---
-    prompt = f"""
-You are a wellness estimation assistant.
+    # --- Step 2: fill gaps with the per-item LLM estimate (same call) ---
+    extracted_by_name = {
+        (fi.get("name") or "").strip().lower(): fi
+        for fi in food_items or []
+        if isinstance(fi, dict)
+    }
 
-Some foods in this check-in were already matched against a local nutrition
-table and their calories are already known (see "already_known_calories"
-below) — do NOT re-estimate those, only handle the items listed under
-"unresolved_food_items".
+    breakdown = []
+    unresolved_calories = 0
+    missing_items = []
+    llm_items = []
 
-Return ONLY valid JSON.
+    for item in local_result["items"]:
+        item = dict(item)
+        if item["estimated_calories"] is None:
+            kcal = _llm_kcal_for_unresolved(
+                item,
+                extracted_by_name.get((item.get("item") or "").strip().lower()),
+            )
+            if kcal is not None:
+                item["estimated_calories"] = round(kcal)
+                item["source"] = "llm_estimate"
+                item["confidence"] = "low"
+                unresolved_calories += round(kcal)
+                llm_items.append(item["item"])
+            else:
+                missing_items.append(item["item"])
+        breakdown.append(item)
 
-Language for text fields: {language}
+    total_in = known_calories + unresolved_calories
+    estimated_calories_in = total_in if total_in > 0 else None
 
-User profile:
-{json.dumps(user_profile, ensure_ascii=False)}
+    assumptions = []
+    if llm_items:
+        assumptions.append(_msg(
+            language,
+            f"Calories estimées approximativement (hors base nutritionnelle) : {', '.join(llm_items)}.",
+            f"Approximate calories (not in the nutrition table): {', '.join(llm_items)}.",
+            f"سعرات تقريبية (خارج قاعدة البيانات الغذائية): {', '.join(llm_items)}.",
+        ))
+    if missing_items:
+        assumptions.append(_msg(
+            language,
+            f"Calories non estimées pour : {', '.join(missing_items)}.",
+            f"No calorie estimate for: {', '.join(missing_items)}.",
+            f"لم يتم تقدير السعرات لـ: {', '.join(missing_items)}.",
+        ))
 
-Already known calories (from local table, do not change): {known_calories}
-Unresolved food items needing an estimate: {unresolved_items}
+    if missing_items and estimated_calories_in is None:
+        confidence = "low"
+    elif llm_items or missing_items:
+        confidence = "medium" if known_calories > 0 else "low"
+    else:
+        confidence = table_confidence
 
-Activity today:
-{activity_today}
-
-Mood:
-{mood}
-
-Return this JSON schema:
-{{
-  "unresolved_items_calories": null,
-  "estimated_calories_burned": null,
-  "assumptions": [],
-  "insight_message": ""
-}}
-
-Rules:
-- unresolved_items_calories: sum of realistic calorie estimates for ONLY
-  the items in "unresolved_food_items" (0 or null if that list is empty).
-- Use realistic approximate values for activity calories burned.
-- Do not present estimates as exact medical facts.
-- If data is missing, use null and explain in assumptions.
-- If language is fr, write text fields in French.
-- If language is ar, write text fields in Arabic/Tunisian Arabic.
-"""
-
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Return only valid JSON. No markdown."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.2
-        )
-
-        llm_part = json.loads(response.choices[0].message.content.strip())
-
-    except Exception:
-        llm_part = {
-            "unresolved_items_calories": None,
-            "estimated_calories_burned": None,
-            "assumptions": ["Energy estimation unavailable for unresolved items."],
-            "insight_message": ""
-        }
-
-    unresolved_calories = llm_part.get("unresolved_items_calories") or 0
-    estimated_calories_in = (known_calories + unresolved_calories) or None
-    estimated_calories_burned = llm_part.get("estimated_calories_burned")
+    # Fallback seulement : écrasé par structured_energy quand le profil est complet
+    estimated_calories_burned = _positive_or_none(
+        extracted.get("estimated_calories_burned_today"), 6000
+    )
 
     estimated_net_calories = None
     estimated_weekly_weight_change_kg = None
     weight_trend = None
-    prediction_available = False
 
     if estimated_calories_in is not None and estimated_calories_burned is not None:
         estimated_net_calories = estimated_calories_in - estimated_calories_burned
@@ -208,10 +347,10 @@ Rules:
         "estimated_net_calories": estimated_net_calories,
         "estimated_weekly_weight_change_kg": estimated_weekly_weight_change_kg,
         "weight_trend": weight_trend,
-        "assumptions": llm_part.get("assumptions", []),
-        "insight_message": llm_part.get("insight_message", ""),
-        "calorie_estimate_confidence": table_confidence,
-        "calorie_breakdown": local_result["items"],
+        "assumptions": assumptions,
+        "insight_message": extracted.get("insight_message", "") or "",
+        "calorie_estimate_confidence": confidence,
+        "calorie_breakdown": breakdown,
     }
 
 def detect_food_patterns(meals_text: str) -> list:
@@ -411,7 +550,7 @@ def structured_energy_calculation(
     return {
         "bmr": bmr,
         "sedentary_tdee": sedentary_tdee,
-        "tdee": total_calories_burned,
+        "total_calories_burned": total_calories_burned,
 
         "estimated_workout_calories_burned": workout_calories,
         "estimated_steps_calories_burned": steps_calories,
@@ -577,8 +716,15 @@ def build_daily_checkin_output(
     user_profile = user_profile or {}
     goals = user_profile.get("goals", [])
     goals_text = " ".join(goals).lower() if isinstance(goals, list) else str(goals).lower()
+    language = user_profile.get("language", "ar")
 
-    extracted = extract_checkin_with_llm(meals_today, activity_today, mood)
+    extracted = extract_checkin_with_llm(
+        meals_today,
+        activity_today,
+        mood,
+        language=language,
+        user_profile=user_profile,
+    )
     structured_energy = structured_energy_calculation(
         user_profile=user_profile,
         extracted=extracted,
@@ -590,18 +736,67 @@ def build_daily_checkin_output(
         activity_today,
         mood,
         food_items=extracted.get("food_items", []),
+        extracted=extracted,
     )
     
     bmr = structured_energy.get("bmr")
-    tdee = structured_energy.get("tdee")
-    activity_burned = structured_energy.get("estimated_activity_calories_burned") or 0
 
-    if tdee is not None:
-        energy_estimation["estimated_calories_burned"] = tdee
-        energy_estimation["estimated_total_calories_burned"] = tdee
-        energy_estimation["estimated_bmr"] = bmr
-        energy_estimation["estimated_tdee"] = tdee
-        energy_estimation["estimated_activity_calories_burned"] = activity_burned
+    sedentary_tdee = structured_energy.get(
+        "sedentary_tdee"
+    )
+
+    total_calories_burned = structured_energy.get(
+        "total_calories_burned"
+    )
+
+    workout_calories = structured_energy.get(
+        "estimated_workout_calories_burned"
+    ) or 0
+
+    step_calories = structured_energy.get(
+        "estimated_steps_calories_burned"
+    ) or 0
+
+    activity_calories = structured_energy.get(
+        "estimated_activity_calories_burned"
+    ) or 0
+
+    if total_calories_burned is not None:
+        energy_estimation[
+            "estimated_calories_burned"
+        ] = total_calories_burned
+
+        energy_estimation[
+            "estimated_total_calories_burned"
+        ] = total_calories_burned
+
+        energy_estimation[
+            "estimated_bmr"
+        ] = bmr
+
+        energy_estimation[
+            "sedentary_tdee"
+        ] = sedentary_tdee
+
+        energy_estimation[
+            "estimated_workout_calories_burned"
+        ] = workout_calories
+
+        energy_estimation[
+            "estimated_steps_calories_burned"
+        ] = step_calories
+
+        energy_estimation[
+            "estimated_activity_calories_burned"
+        ] = activity_calories
+
+        energy_estimation[
+            "estimated_tdee"
+        ] = total_calories_burned
+
+        energy_estimation[
+            "steps"
+        ] = steps
 
     if (
         energy_estimation.get("estimated_calories_in") is not None
@@ -623,7 +818,6 @@ def build_daily_checkin_output(
             energy_estimation["prediction_available"] = False
 
             assumptions = energy_estimation.get("assumptions", [])
-            language = user_profile.get("language", "ar")
 
             if language == "fr":
                 message = (

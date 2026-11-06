@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from datetime import date
 from ai_module.dashboard import build_product_loyalty_message
-
+from urllib.parse import quote
 from ai_module.product_db import (
     get_product_knowledge_dict,
     get_quantity_offers_dict,
@@ -96,6 +96,1657 @@ PRODUCT_SIGNAL_ALIASES = {
    
     },
 }
+
+
+
+SUPABASE_EXERCISE_BASE_URL = (
+    "https://fvelzzxktroqfyhyvuku.supabase.co/"
+    "storage/v1/object/public/exercise%20gifs"
+)
+
+
+def exercise_video_url(filename: str) -> str:
+    return (
+        f"{SUPABASE_EXERCISE_BASE_URL}/"
+        f"{quote(filename)}"
+    )
+
+
+EXERCISE_VIDEO_URLS = {
+    # Filenames must match the Supabase bucket "exercise gifs" EXACTLY
+    # (case, spaces and typos included).
+    "male": {
+        "bent_over_row_kettlebell": exercise_video_url(
+            "man-bent-over-row-exercise-with-kettle-bell.mp4"
+        ),
+        "bent_over_row_dumbbells": exercise_video_url(
+            "man-bent-over-row-with-dumbells.mp4"
+        ),
+        "bicep_curl": exercise_video_url(
+            "man-bicep-curls.mp4"
+        ),
+        "bulgarian_split_squat": exercise_video_url(
+            "man-bulgarian-split-squat.mp4"
+        ),
+        "burpee": exercise_video_url(
+            "man-burpee-exercise.mp4"
+        ),
+        "butt_kicks": exercise_video_url(
+            "man-butt-kicks.mp4"
+        ),
+        "calf_raise": exercise_video_url(
+            "man-calf-raises.mp4"
+        ),
+        "concentration_curl": exercise_video_url(
+            "man-concentration-curl.mp4"
+        ),
+        "cycling": exercise_video_url(
+            "man-cycling.mp4"
+        ),
+        "elliptical": exercise_video_url(
+            "man-elliptical.mp4"
+        ),
+        "front_raise": exercise_video_url(
+            "man-front-raises.mp4"
+        ),
+        "glute_bridge": exercise_video_url(
+            "man-glute-bridge.mp4"
+        ),
+        "hammer_curl": exercise_video_url(
+            "man-hammer-curl.mp4"
+        ),
+        "hammer_curls": exercise_video_url(
+            "man-hammer-curls.mp4"
+        ),
+        "high_stepping": exercise_video_url(
+            "man-High Stepping.mp4"
+        ),
+        "hip_thrust": exercise_video_url(
+            "man-hip-thrust.mp4"
+        ),
+        "inchworm": exercise_video_url(
+            "man-Inchworm.mp4"
+        ),
+        "jogging": exercise_video_url(
+            "man-jogging.mp4"
+        ),
+        "jumping_jacks": exercise_video_url(
+            "man-jumping-jacks.mp4"
+        ),
+        "jumping_squat": exercise_video_url(
+            "man-jumping-squat.mp4"
+        ),
+        "kettlebell_swing": exercise_video_url(
+            "man-kettlebell-swing-.mp4"
+        ),
+        "knee_push_up": exercise_video_url(
+            "man-knee-push-up.mp4"
+        ),
+        "lateral_raise": exercise_video_url(
+            "man-literal-raises.mp4"
+        ),
+        "lunge": exercise_video_url(
+            "man-lunges.mp4"
+        ),
+        "mountain_climbers": exercise_video_url(
+            "man-mountain-climbers.mp4"
+        ),
+        "overhead_tricep_extension": exercise_video_url(
+            "man-overhead-tricep-extension.mp4"
+        ),
+        "punches": exercise_video_url(
+            "man-punches.mp4"
+        ),
+        "push_up": exercise_video_url(
+            "man-push-up.mp4"
+        ),
+        "reverse_crunch": exercise_video_url(
+            "man-Reverse-Crunches.mp4"
+        ),
+        "romanian_deadlift": exercise_video_url(
+            "man-romanian-deadlift.mp4"
+        ),
+        "seated_hammer_curl": exercise_video_url(
+            "man-seated-hammer-curl.mp4"
+        ),
+        "seated_lateral_raise": exercise_video_url(
+            "man-seated-literal-raises.mp4"
+        ),
+        "seated_shoulder_press": exercise_video_url(
+            "man-seated-shoulder-press.mp4"
+        ),
+        "seated_tricep_extension": exercise_video_url(
+            "man-seated-tricep-extension.mp4"
+        ),
+        "shadow_boxing": exercise_video_url(
+            "man-Standing Shadow Boxing.mp4"
+        ),
+        "shoulder_external_rotation": exercise_video_url(
+            "man-shoulder-external-rotation.mp4"
+        ),
+        "shoulder_press": exercise_video_url(
+            "man-shoulder-press.mp4"
+        ),
+        "shoulder_stretch": exercise_video_url(
+            "man-Shoulder Stretch.mp4"
+        ),
+        "side_leg_deadlift": exercise_video_url(
+            "man-side-leg-deadlift-exercise.mp4"
+        ),
+        "side_raise": exercise_video_url(
+            "man-side-raises.mp4"
+        ),
+        "sit_up": exercise_video_url(
+            "Man-Sit Up for ABS.mp4"
+        ),
+        "split_jump": exercise_video_url(
+            "man-Split Jump.mp4"
+        ),
+        "squat": exercise_video_url(
+            "man-squat.mp4"
+        ),
+        "t_plank": exercise_video_url(
+            "man- T Plank.mp4"
+        ),
+        "upright_row": exercise_video_url(
+            "man-upright-row.mp4"
+        ),
+        "walking": exercise_video_url(
+            "walking-man.mp4"
+        ),
+    },
+
+    "female": {
+        "ball_pass": exercise_video_url(
+            "woman-ball-pass.mp4"
+        ),
+        "bicycle_crunch": exercise_video_url(
+            "woman-bicycle-crunches.mp4"
+        ),
+        "bird_dog": exercise_video_url(
+            "woman-bird-dog.mp4"
+        ),
+        "bodyweight_good_morning": exercise_video_url(
+            "woman-bodyweight-good-morning-exercise.mp4"
+        ),
+        "bulgarian_split_squat_jump": exercise_video_url(
+            "woman-Bulgarian Split Squat Jump.mp4"
+        ),
+        "burpee": exercise_video_url(
+            "woman-burpees.mp4"
+        ),
+        "calf_raise": exercise_video_url(
+            "woman-calf-raises.mp4"
+        ),
+        "cobra_stretch": exercise_video_url(
+            "woman-cobra stretch.mp4"
+        ),
+        "crunch": exercise_video_url(
+            "woman-crunches.mp4"
+        ),
+        "cycling": exercise_video_url(
+            "woman-cycling.mp4"
+        ),
+        "dead_bug": exercise_video_url(
+            "woman-Deadbug.mp4"
+        ),
+        "dumbbell_rear_delt_row": exercise_video_url(
+            "woman-dumbbell-rear-delt-row.mp4"
+        ),
+        "glute_kick_back": exercise_video_url(
+            "woman-glute-kick-back.mp4"
+        ),
+        "glute_kickback_pulse": exercise_video_url(
+            "woman-glute-kickback-pulse.mp4"
+        ),
+        "jogging": exercise_video_url(
+            "woman-jogging.mp4"
+        ),
+        "jumping_jacks": exercise_video_url(
+            "woman-jumping-jacks.mp4"
+        ),
+        "knee_push_up": exercise_video_url(
+            "woman-knee-push-ups.mp4"
+        ),
+        "lunge": exercise_video_url(
+            "woman-lunges-exercise.mp4"
+        ),
+        "lying_leg_raise_knee_tuck": exercise_video_url(
+            "woman-Lying Leg Raise with Knee Tuck.mp4"
+        ),
+        "medicine_ball_slam": exercise_video_url(
+            "woman-medicine-ball-slams.mp4"
+        ),
+        "mermaid_pose": exercise_video_url(
+            "woman-mermaid-pose.mp4"
+        ),
+        "plank": exercise_video_url(
+            "woman-plank-animation.mp4"
+        ),
+        "plie_squat": exercise_video_url(
+            "woman-plie-squats-animation.mp4"
+        ),
+        "push_up": exercise_video_url(
+            "woman-push-ups.mp4"
+        ),
+        "running_plank": exercise_video_url(
+            "woman-running-plank.mp4"
+        ),
+        "shoulder_press": exercise_video_url(
+            "woman-Shoulder Press.mp4"
+        ),
+        "side_lunge": exercise_video_url(
+            "woman--side-lunges.mp4"
+        ),
+        "side_plank_hip_abduction": exercise_video_url(
+            "woman-Side Plank Hip Abduction.mp4"
+        ),
+        "single_leg_deadlift": exercise_video_url(
+            "woman-single-leg-deadlifts.mp4"
+        ),
+        "sit_up": exercise_video_url(
+            "woman-sit-ups.mp4"
+        ),
+        "split_squat": exercise_video_url(
+            "woman-split-squat.mp4"
+        ),
+        "squat_jump": exercise_video_url(
+            "woman-squat-jumps.mp4"
+        ),
+        "squat": exercise_video_url(
+            "woman-squats.mp4"
+        ),
+        "standing_side_bend": exercise_video_url(
+            "woman-standing-side-bends.mp4"
+        ),
+        "step_up": exercise_video_url(
+            "woman-step-ups.mp4"
+        ),
+        "three_legged_downward_dog": exercise_video_url(
+            "woman-three-legged-downward-dog.mp4"
+        ),
+        "wall_sit": exercise_video_url(
+            "woman-wall-sits.mp4"
+        ),
+    },
+}
+
+
+# =============================================================================
+# Exercise library, medical safety rules and video attachment
+# =============================================================================
+
+
+# Catalog used when the user's sex is unknown (videos must come from somewhere).
+# The female catalog is used because it holds the most low-risk mobility options.
+DEFAULT_CATALOG_SEX = "female"
+
+# Lowest-risk exercise per catalog: guarantees that every user gets a workout.
+SAFE_FLOOR_EXERCISE_KEY = {
+    "male": "walking",
+    "female": "standing_side_bend",
+}
+
+# ---------------------------------------------------------------------------
+# Safety tags
+# ---------------------------------------------------------------------------
+HIGH_IMPACT = "high_impact"
+HIGH_INTENSITY = "high_intensity"
+SUPINE = "supine"
+SPINAL_FLEXION = "spinal_flexion"
+ISOMETRIC_STRAIN = "isometric_strain"
+EXTERNAL_LOAD = "external_load"
+OVERHEAD = "overhead"
+BALANCE = "balance_demanding"
+KNEE_LOAD = "knee_load"
+SPINE_LOAD = "spine_load"
+UNVERIFIED = "unverified_content"
+PRONE = "prone"            # lying face down
+INVERSION = "inversion"    # head below the heart
+
+
+# Exercise categories:
+#   training: cardio | lower | upper | core | mobility
+#   session phases: warmup | cooldown | stretch
+# "category" is the main one; "categories" holds ALL categories the
+# exercise belongs to (main one first). Extra ones are set in
+# EXERCISE_EXTRA_CATEGORIES below.
+EXERCISE_CATEGORIES = (
+    "cardio", "lower", "upper", "core", "mobility",
+    "warmup", "cooldown", "stretch",
+)
+
+
+def _exercise(en, fr, ar, category, level, dose, equipment=None, tags=()):
+    return {
+        "names": {"en": en, "fr": fr, "ar": ar},
+        "category": category,      # main category (see EXERCISE_CATEGORIES)
+        "categories": (category,), # completed from EXERCISE_EXTRA_CATEGORIES
+        "level": level,            # 1 beginner, 2 intermediate, 3 advanced
+        "dose": dose,              # reps | reps_side | seconds | minutes
+        "equipment": equipment,    # None = bodyweight
+        "tags": frozenset(tags),
+    }
+
+
+# One canonical entry per video key. The displayed name is ALWAYS taken from
+# here, so it always describes the movement shown in the video.
+EXERCISE_LIBRARY = {
+    # ---------------- male catalog ----------------
+    "bent_over_row_kettlebell": _exercise(
+        "Bent-Over Row (Kettlebell)", "Rowing buste penché (kettlebell)",
+        "تجديف منحني بالكيتل بل", "upper", 2, "reps", "kettlebell",
+        (EXTERNAL_LOAD, SPINE_LOAD)),
+    "bent_over_row_dumbbells": _exercise(
+        "Bent-Over Row (Dumbbells)", "Rowing buste penché (haltères)",
+        "تجديف منحني بالدمبل", "upper", 2, "reps", "dumbbells",
+        (EXTERNAL_LOAD, SPINE_LOAD)),
+    "bicep_curl": _exercise(
+        "Bicep Curl", "Curl biceps", "كيرل البايسبس",
+        "upper", 1, "reps", "dumbbells", (EXTERNAL_LOAD,)),
+    "bulgarian_split_squat": _exercise(
+        "Bulgarian Split Squat", "Squat bulgare", "سكوات بلغاري",
+        "lower", 3, "reps_side", None, (KNEE_LOAD, BALANCE)),
+    "burpee": _exercise(
+        "Burpee", "Burpee", "بيربي",
+        "cardio", 3, "reps", None, (HIGH_IMPACT, HIGH_INTENSITY)),
+    "butt_kicks": _exercise(
+        "Butt Kicks", "Talons-fesses", "ركل الكعبين للخلف",
+        "cardio", 2, "seconds", None, (HIGH_IMPACT,)),
+    "calf_raise": _exercise(
+        "Calf Raise", "Élévation des mollets", "رفع السمانة",
+        "lower", 1, "reps"),
+    "concentration_curl": _exercise(
+        "Concentration Curl", "Curl concentré", "كيرل التركيز",
+        "upper", 1, "reps_side", "dumbbells", (EXTERNAL_LOAD,)),
+    "elliptical": _exercise(
+        "Elliptical Trainer", "Vélo elliptique", "جهاز الإليبتيكال",
+        "cardio", 1, "minutes", "elliptical machine"),
+    "front_raise": _exercise(
+        "Front Raise", "Élévation frontale", "رفع أمامي للذراعين",
+        "upper", 1, "reps", "dumbbells", (EXTERNAL_LOAD,)),
+    "glute_bridge": _exercise(
+        "Glute Bridge", "Pont fessier", "جسر الأرداف",
+        "lower", 1, "reps", None, (SUPINE,)),
+    "hammer_curl": _exercise(
+        "Hammer Curl", "Curl marteau", "كيرل المطرقة",
+        "upper", 1, "reps", "dumbbells", (EXTERNAL_LOAD,)),
+    "hammer_curls": _exercise(
+        "Hammer Curls", "Curls marteau", "كيرل المطرقة المتكرر",
+        "upper", 1, "reps", "dumbbells", (EXTERNAL_LOAD,)),
+    "hip_thrust": _exercise(
+        "Hip Thrust", "Hip thrust", "دفع الورك (هيب ثرست)",
+        "lower", 2, "reps", "bench", (EXTERNAL_LOAD,)),
+    "jogging": _exercise(
+        "Jogging", "Jogging", "الجري الخفيف",
+        "cardio", 2, "minutes", None, (HIGH_IMPACT,)),
+    "jumping_jacks": _exercise(
+        "Jumping Jacks", "Jumping jacks", "القفز مع فتح الأطراف",
+        "cardio", 2, "seconds", None, (HIGH_IMPACT,)),
+    "jumping_squat": _exercise(
+        "Jump Squat", "Squat sauté", "سكوات مع القفز",
+        "cardio", 3, "reps", None, (HIGH_IMPACT, HIGH_INTENSITY, KNEE_LOAD)),
+    "kettlebell_swing": _exercise(
+        "Kettlebell Swing", "Swing kettlebell", "أرجحة الكيتل بل",
+        "cardio", 3, "reps", "kettlebell",
+        (EXTERNAL_LOAD, HIGH_INTENSITY, SPINE_LOAD)),
+    "knee_push_up": _exercise(
+        "Knee Push-Up", "Pompe sur les genoux", "ضغط على الركبتين",
+        "upper", 1, "reps"),
+    "lateral_raise": _exercise(
+        "Lateral Raise", "Élévation latérale", "رفع جانبي للذراعين",
+        "upper", 1, "reps", "dumbbells", (EXTERNAL_LOAD,)),
+    "lunge": _exercise(
+        "Lunge", "Fente", "الطعنات (لانج)",
+        "lower", 2, "reps_side", None, (KNEE_LOAD, BALANCE)),
+    "mountain_climbers": _exercise(
+        "Mountain Climbers", "Mountain climbers", "تسلق الجبل",
+        "cardio", 3, "seconds", None, (HIGH_INTENSITY, ISOMETRIC_STRAIN)),
+    "overhead_tricep_extension": _exercise(
+        "Overhead Triceps Extension", "Extension triceps au-dessus de la tête",
+        "تمديد الترايسبس فوق الرأس",
+        "upper", 1, "reps", "dumbbells", (EXTERNAL_LOAD, OVERHEAD)),
+    "punches": _exercise(
+        "Punches", "Coups de poing", "لكمات في الهواء",
+        "cardio", 1, "seconds"),
+    "push_up": _exercise(
+        "Push-Up", "Pompe", "تمرين الضغط",
+        "upper", 2, "reps", None, (ISOMETRIC_STRAIN,)),
+    "seated_hammer_curl": _exercise(
+        "Seated Hammer Curl", "Curl marteau assis", "كيرل المطرقة جالساً",
+        "upper", 1, "reps", "dumbbells", (EXTERNAL_LOAD,)),
+    "seated_lateral_raise": _exercise(
+        "Seated Lateral Raise", "Élévation latérale assise", "رفع جانبي جالساً",
+        "upper", 1, "reps", "dumbbells", (EXTERNAL_LOAD,)),
+    "seated_shoulder_press": _exercise(
+        "Seated Shoulder Press", "Développé épaules assis", "ضغط الكتفين جالساً",
+        "upper", 2, "reps", "dumbbells", (EXTERNAL_LOAD, OVERHEAD)),
+    "seated_tricep_extension": _exercise(
+        "Seated Triceps Extension", "Extension triceps assis",
+        "تمديد الترايسبس جالساً",
+        "upper", 1, "reps", "dumbbells", (EXTERNAL_LOAD, OVERHEAD)),
+    "shoulder_external_rotation": _exercise(
+        "Shoulder External Rotation", "Rotation externe de l'épaule",
+        "التدوير الخارجي للكتف",
+        "upper", 1, "reps_side", "resistance band"),
+    "shoulder_press": _exercise(
+        "Shoulder Press", "Développé épaules", "ضغط الكتفين",
+        "upper", 2, "reps", "dumbbells", (EXTERNAL_LOAD, OVERHEAD)),
+    "side_raise": _exercise(
+        "Side Raise", "Élévation sur le côté", "رفع الذراعين للجانب",
+        "upper", 1, "reps", "dumbbells", (EXTERNAL_LOAD,)),
+    "squat": _exercise(
+        "Squat", "Squat", "سكوات",
+        "lower", 1, "reps", None, (KNEE_LOAD,)),
+    "upright_row": _exercise(
+        "Upright Row", "Rowing menton", "التجديف العمودي",
+        "upper", 2, "reps", "dumbbells", (EXTERNAL_LOAD,)),
+    "romanian_deadlift": _exercise(
+        "Romanian Deadlift", "Soulevé de terre roumain", "الرفعة الرومانية",
+        "lower", 2, "reps", "dumbbells", (EXTERNAL_LOAD, SPINE_LOAD)),
+    "side_leg_deadlift": _exercise(
+        "Side-Leg Deadlift", "Soulevé de terre jambe décalée",
+        "رفعة مميتة بساق جانبية",
+        "lower", 2, "reps_side", None, (BALANCE, SPINE_LOAD)),
+    "walking": _exercise(
+        "Walking", "Marche", "المشي",
+        "cardio", 1, "minutes"),
+    "cycling": _exercise(
+        "Cycling", "Vélo", "ركوب الدراجة",
+        "cardio", 1, "minutes", "bike"),
+    "high_stepping": _exercise(
+        "High Stepping", "Montées de genoux", "رفع الركبتين عالياً",
+        "cardio", 2, "seconds", None, (HIGH_IMPACT,)),
+    "inchworm": _exercise(
+        "Inchworm", "Chenille (inchworm)", "تمرين الدودة",
+        "mobility", 2, "reps", None, (SPINAL_FLEXION, INVERSION)),
+    "reverse_crunch": _exercise(
+        "Reverse Crunch", "Crunch inversé", "الكرانش العكسي",
+        "core", 1, "reps", None, (SUPINE, SPINAL_FLEXION)),
+    "shadow_boxing": _exercise(
+        "Standing Shadow Boxing", "Shadow boxing debout",
+        "الملاكمة الوهمية وقوفاً",
+        "cardio", 1, "seconds"),
+    "shoulder_stretch": _exercise(
+        "Shoulder Stretch", "Étirement des épaules", "تمطيط الكتفين",
+        "stretch", 1, "seconds"),
+    "split_jump": _exercise(
+        "Split Jump", "Fentes sautées", "القفز بالطعنات",
+        "cardio", 3, "reps", None,
+        (HIGH_IMPACT, HIGH_INTENSITY, KNEE_LOAD, BALANCE)),
+    "t_plank": _exercise(
+        "T Plank", "Planche en T", "بلانك على شكل T",
+        "core", 2, "reps_side", None, (ISOMETRIC_STRAIN, BALANCE)),
+
+    # ---------------- female catalog ----------------
+    "ball_pass": _exercise(
+        "Ball Pass", "Passe de ballon", "تمرير الكرة",
+        "core", 2, "reps", "ball", (SUPINE, SPINAL_FLEXION)),
+    "bicycle_crunch": _exercise(
+        "Bicycle Crunch", "Crunch vélo", "كرانش الدراجة",
+        "core", 2, "reps", None, (SUPINE, SPINAL_FLEXION)),
+    "bird_dog": _exercise(
+        "Bird Dog", "Bird dog", "تمرين بيرد دوغ",
+        "core", 1, "reps_side"),
+    "bodyweight_good_morning": _exercise(
+        "Bodyweight Good Morning", "Good morning au poids du corps",
+        "تمرين صباح الخير بوزن الجسم",
+        "lower", 1, "reps", None, (SPINE_LOAD,)),
+    "crunch": _exercise(
+        "Crunch", "Crunch", "كرانش البطن",
+        "core", 1, "reps", None, (SUPINE, SPINAL_FLEXION)),
+    "glute_kick_back": _exercise(
+        "Glute Kickback", "Kickback fessier", "ركلة الأرداف للخلف",
+        "lower", 1, "reps_side"),
+    "glute_kickback_pulse": _exercise(
+        "Glute Kickback Pulse", "Kickback fessier pulsé", "ركلة الأرداف النبضية",
+        "lower", 1, "reps_side"),
+    "medicine_ball_slam": _exercise(
+        "Medicine Ball Slam", "Slam ball", "رمي الكرة الطبية للأرض",
+        "cardio", 3, "reps", "medicine ball",
+        (HIGH_INTENSITY, OVERHEAD, SPINE_LOAD, EXTERNAL_LOAD)),
+    "plank": _exercise(
+        "Plank", "Gainage (planche)", "البلانك",
+        "core", 2, "seconds", None, (ISOMETRIC_STRAIN,)),
+    "plie_squat": _exercise(
+        "Plié Squat", "Squat plié", "سكوات بليه",
+        "lower", 1, "reps", None, (KNEE_LOAD,)),
+    "running_plank": _exercise(
+        "Running Plank", "Planche dynamique", "البلانك مع الجري",
+        "cardio", 3, "seconds", None, (HIGH_INTENSITY, ISOMETRIC_STRAIN)),
+    "side_lunge": _exercise(
+        "Side Lunge", "Fente latérale", "الطعنة الجانبية",
+        "lower", 2, "reps_side", None, (KNEE_LOAD, BALANCE)),
+    "single_leg_deadlift": _exercise(
+        "Single-Leg Deadlift", "Soulevé de terre sur une jambe",
+        "الرفعة المميتة على ساق واحدة",
+        "lower", 2, "reps_side", None, (BALANCE, SPINE_LOAD)),
+    "sit_up": _exercise(
+        "Sit-Up", "Redressement assis", "تمرين الجلوس",
+        "core", 1, "reps", None, (SUPINE, SPINAL_FLEXION)),
+    "split_squat": _exercise(
+        "Split Squat", "Squat fendu", "سكوات مفتوح",
+        "lower", 2, "reps_side", None, (KNEE_LOAD,)),
+    "squat_jump": _exercise(
+        "Squat Jump", "Squat sauté", "سكوات مع القفز",
+        "cardio", 3, "reps", None, (HIGH_IMPACT, HIGH_INTENSITY, KNEE_LOAD)),
+    "standing_side_bend": _exercise(
+        "Standing Side Bend", "Inclinaison latérale debout",
+        "الانحناء الجانبي وقوفاً",
+        "mobility", 1, "reps_side"),
+    "step_up": _exercise(
+        "Step-Up", "Montée sur marche", "الصعود على الدرجة",
+        "lower", 2, "reps_side", "step", (KNEE_LOAD, BALANCE)),
+    "wall_sit": _exercise(
+        "Wall Sit", "Chaise contre le mur", "الجلوس على الحائط",
+        "lower", 2, "seconds", None, (ISOMETRIC_STRAIN, KNEE_LOAD)),
+    "dumbbell_rear_delt_row": _exercise(
+        "Dumbbell Rear Delt Row", "Rowing deltoïdes postérieurs (haltères)",
+        "تجديف الكتف الخلفي بالدمبل",
+        "upper", 2, "reps", "dumbbells", (EXTERNAL_LOAD, SPINE_LOAD)),
+    "bulgarian_split_squat_jump": _exercise(
+        "Bulgarian Split Squat Jump", "Squat bulgare sauté",
+        "سكوات بلغاري مع القفز",
+        "cardio", 3, "reps_side", None,
+        (HIGH_IMPACT, HIGH_INTENSITY, KNEE_LOAD, BALANCE)),
+    "cobra_stretch": _exercise(
+        "Cobra Stretch", "Étirement du cobra", "تمطيط الكوبرا",
+        "stretch", 1, "seconds", None, (PRONE,)),
+    "dead_bug": _exercise(
+        "Dead Bug", "Dead bug", "تمرين الحشرة الميتة",
+        "core", 1, "reps_side", None, (SUPINE,)),
+    "lying_leg_raise_knee_tuck": _exercise(
+        "Lying Leg Raise with Knee Tuck",
+        "Relevé de jambes allongé avec genoux rentrés",
+        "رفع الساقين مستلقياً مع ثني الركبتين",
+        "core", 2, "reps", None, (SUPINE, SPINAL_FLEXION, SPINE_LOAD)),
+    "mermaid_pose": _exercise(
+        "Mermaid Stretch", "Posture de la sirène", "وضعية حورية البحر",
+        "stretch", 1, "seconds"),
+    "side_plank_hip_abduction": _exercise(
+        "Side Plank Hip Abduction", "Planche latérale avec abduction de hanche",
+        "بلانك جانبي مع رفع الساق",
+        "core", 3, "reps_side", None, (ISOMETRIC_STRAIN, BALANCE)),
+    "three_legged_downward_dog": _exercise(
+        "Three-Legged Downward Dog", "Chien tête en bas à trois pattes",
+        "وضعية الكلب المقلوب على ثلاث نقاط",
+        "stretch", 2, "seconds", None, (INVERSION, BALANCE)),
+}
+
+# Additional categories: an exercise can belong to several categories.
+EXERCISE_EXTRA_CATEGORIES = {
+    # --- cardio that also warms up / cools down ---
+    "walking": ("warmup", "cooldown"),
+    "cycling": ("warmup", "cooldown"),
+    "elliptical": ("warmup", "cooldown"),
+    "jogging": ("warmup",),
+    "jumping_jacks": ("warmup",),
+    "butt_kicks": ("warmup",),
+    "high_stepping": ("warmup",),
+    "punches": ("warmup",),
+    "shadow_boxing": ("warmup",),
+    # --- cardio that also trains strength ---
+    "burpee": ("lower", "upper", "core"),
+    "jumping_squat": ("lower",),
+    "squat_jump": ("lower",),
+    "split_jump": ("lower",),
+    "bulgarian_split_squat_jump": ("lower",),
+    "kettlebell_swing": ("lower", "core"),
+    "mountain_climbers": ("core",),
+    "running_plank": ("core",),
+    "medicine_ball_slam": ("upper", "core"),
+    # --- strength exercises with a second target ---
+    "push_up": ("core",),
+    "knee_push_up": ("core",),
+    "glute_bridge": ("core", "warmup", "cooldown"),
+    "step_up": ("cardio",),
+    "squat": ("warmup",),
+    "calf_raise": ("warmup",),
+    "bodyweight_good_morning": ("warmup", "stretch"),
+    "shoulder_external_rotation": ("warmup", "mobility"),
+    # --- core exercises with a second target ---
+    "t_plank": ("upper",),
+    "side_plank_hip_abduction": ("lower",),
+    "bird_dog": ("warmup", "mobility"),
+    "dead_bug": ("warmup",),
+    # --- mobility / stretching ---
+    "inchworm": ("warmup", "stretch", "cooldown"),
+    "standing_side_bend": ("warmup", "cooldown", "stretch"),
+    "shoulder_stretch": ("mobility", "cooldown"),
+    "cobra_stretch": ("mobility", "cooldown"),
+    "mermaid_pose": ("mobility", "cooldown"),
+    "three_legged_downward_dog": ("mobility", "cooldown"),
+}
+
+for _key, _extra in EXERCISE_EXTRA_CATEGORIES.items():
+    if _key in EXERCISE_LIBRARY:
+        _meta = EXERCISE_LIBRARY[_key]
+        _meta["categories"] = tuple(dict.fromkeys(
+            (_meta["category"],) + tuple(_extra)
+        ))
+
+
+def exercise_has_category(exercise_key: str, category: str) -> bool:
+    meta = EXERCISE_LIBRARY.get(exercise_key) or {}
+    return category in meta.get("categories", (meta.get("category"),))
+
+
+# ---------------------------------------------------------------------------
+# Medical rules (conservative, based on general exercise-safety guidance).
+# Terms are matched as substrings of the user's medical_conditions.
+# ---------------------------------------------------------------------------
+EXERCISE_CONDITION_RULES = [
+    {
+        "note": "pregnancy",
+        "terms": ("pregnan", "grossesse", "enceinte", "حامل", "الحمل"),
+        "exclude": {HIGH_IMPACT, HIGH_INTENSITY, SUPINE, SPINAL_FLEXION,
+                    ISOMETRIC_STRAIN, EXTERNAL_LOAD, BALANCE, OVERHEAD,
+                    PRONE, INVERSION},
+        "max_level": 1,
+        "clearance": True,
+    },
+    {
+        "note": "postpartum",
+        "terms": ("breastfeed", "postpartum", "allaitement", "allaite",
+                  "رضاعة", "مرضعة"),
+        "exclude": {HIGH_IMPACT, HIGH_INTENSITY, SPINAL_FLEXION, EXTERNAL_LOAD},
+        "max_level": 1,
+        "clearance": True,
+    },
+    {
+        "note": "chest_pain",
+        "terms": ("chest pain", "douleur thoracique", "douleur à la poitrine",
+                  "ألم في الصدر", "ألم الصدر"),
+        "exclude": {HIGH_IMPACT, HIGH_INTENSITY, ISOMETRIC_STRAIN,
+                    EXTERNAL_LOAD, OVERHEAD, SPINAL_FLEXION, INVERSION},
+        "max_level": 1,
+        "clearance": True,
+    },
+    {
+        "note": "cardiac",
+        "terms": ("heart", "cardiac", "cardiaque", "coeur", "cœur",
+                  "القلب", "قلبي"),
+        "exclude": {HIGH_IMPACT, HIGH_INTENSITY, ISOMETRIC_STRAIN,
+                    EXTERNAL_LOAD, OVERHEAD, INVERSION},
+        "max_level": 1,
+        "clearance": True,
+    },
+    {
+        "note": "hypertension",
+        "terms": ("hypertension", "high blood pressure", "tension artérielle",
+                  "ضغط الدم", "الضغط"),
+        "exclude": {HIGH_INTENSITY, ISOMETRIC_STRAIN, EXTERNAL_LOAD, OVERHEAD,
+                    INVERSION},
+        "max_level": 2,
+        "clearance": False,
+    },
+    {
+        "note": "surgery",
+        "terms": ("surgery", "surgical", "chirurgie", "opéré", "opération",
+                  "عملية جراحية", "جراحة"),
+        "exclude": {HIGH_IMPACT, HIGH_INTENSITY, ISOMETRIC_STRAIN,
+                    EXTERNAL_LOAD, SPINAL_FLEXION, PRONE},
+        "max_level": 1,
+        "clearance": True,
+    },
+    {
+        "note": "injury",
+        "terms": ("injur", "blessure", "blessé", "إصابة"),
+        "exclude": {HIGH_IMPACT, HIGH_INTENSITY, EXTERNAL_LOAD},
+        "max_level": 1,
+        "clearance": True,
+    },
+    {
+        "note": "joint",
+        "terms": ("knee", "arthritis", "arthrose", "genou", "الركبة", "المفاصل"),
+        "exclude": {HIGH_IMPACT, KNEE_LOAD},
+        "max_level": 2,
+        "clearance": False,
+    },
+    {
+        "note": "back",
+        "terms": ("back pain", "lower back", "hernia", "sciatica", "mal de dos",
+                  "lombalgie", "lombaire", "hernie", "sciatique",
+                  "الظهر", "ديسك", "انزلاق غضروفي"),
+        "exclude": {HIGH_IMPACT, EXTERNAL_LOAD, SPINE_LOAD, SPINAL_FLEXION},
+        "max_level": 2,
+        "clearance": False,
+    },
+    {
+        "note": "bone",
+        "terms": ("osteoporosis", "ostéoporose", "هشاشة العظام"),
+        "exclude": {HIGH_IMPACT, SPINAL_FLEXION, EXTERNAL_LOAD},
+        "max_level": 2,
+        "clearance": False,
+    },
+    {
+        "note": "asthma",
+        "terms": ("asthma", "asthme", "الربو"),
+        "exclude": {HIGH_INTENSITY},
+        "max_level": 2,
+        "clearance": False,
+    },
+    {
+        "note": "diabetes",
+        "terms": ("diabet", "diabète", "السكري"),
+        "exclude": set(),
+        "max_level": None,
+        "clearance": False,
+    },
+]
+
+EXERCISE_SAFETY_NOTES = {
+    "en": {
+        "clearance": "Get your doctor's approval before doing this session.",
+        "general": "Stop immediately if you feel pain, dizziness, chest discomfort or unusual shortness of breath.",
+        "pregnancy": "During pregnancy, avoid lying flat on your back, jumping and holding your breath; you should be able to talk while exercising.",
+        "postpartum": "After childbirth, return to exercise gradually and avoid intense abdominal exercises until cleared.",
+        "chest_pain": "Chest pain must be checked by a doctor before any exercise. Seek urgent care if it occurs during effort.",
+        "cardiac": "With a heart condition, keep the effort light and avoid straining or holding your breath.",
+        "hypertension": "With high blood pressure, breathe continuously and avoid holding your breath, heavy or overhead efforts.",
+        "surgery": "After recent surgery, exercise only once your surgeon has approved it and avoid straining the operated area.",
+        "injury": "Avoid any movement that loads or hurts the injured area.",
+        "joint": "Keep knee movements pain-free and controlled; reduce the range if needed.",
+        "back": "Keep your back neutral and avoid movements that trigger back pain.",
+        "bone": "Avoid jumping, twisting and bending your spine forward.",
+        "asthma": "Keep your inhaler nearby and warm up gradually.",
+        "diabetes": "If you take glucose-lowering treatment, check your blood sugar and keep a quick source of sugar nearby.",
+        "older_adult": "Use a chair or wall for support if your balance feels uncertain.",
+    },
+    "fr": {
+        "clearance": "Demandez l'accord de votre médecin avant de faire cette séance.",
+        "general": "Arrêtez immédiatement en cas de douleur, vertige, gêne thoracique ou essoufflement inhabituel.",
+        "pregnancy": "Pendant la grossesse, évitez de vous allonger sur le dos, les sauts et de bloquer votre respiration ; vous devez pouvoir parler pendant l'effort.",
+        "postpartum": "Après l'accouchement, reprenez progressivement et évitez les exercices abdominaux intenses sans accord médical.",
+        "chest_pain": "Une douleur thoracique doit être examinée par un médecin avant toute activité. Consultez en urgence si elle survient à l'effort.",
+        "cardiac": "En cas de problème cardiaque, gardez un effort léger et évitez de forcer ou de bloquer votre respiration.",
+        "hypertension": "En cas d'hypertension, respirez en continu et évitez de bloquer votre respiration, les charges lourdes et les efforts au-dessus de la tête.",
+        "surgery": "Après une opération récente, ne reprenez qu'avec l'accord de votre chirurgien et évitez de solliciter la zone opérée.",
+        "injury": "Évitez tout mouvement qui sollicite ou fait mal à la zone blessée.",
+        "joint": "Gardez les mouvements des genoux contrôlés et sans douleur ; réduisez l'amplitude si besoin.",
+        "back": "Gardez le dos neutre et évitez les mouvements qui déclenchent une douleur.",
+        "bone": "Évitez les sauts, les torsions et la flexion du dos vers l'avant.",
+        "asthma": "Gardez votre inhalateur à portée de main et échauffez-vous progressivement.",
+        "diabetes": "Si vous prenez un traitement hypoglycémiant, contrôlez votre glycémie et gardez une source de sucre rapide à portée de main.",
+        "older_adult": "Appuyez-vous sur une chaise ou un mur si votre équilibre est incertain.",
+    },
+    "ar": {
+        "clearance": "احصل على موافقة طبيبك قبل القيام بهذه الحصة.",
+        "general": "توقف فوراً إذا شعرت بألم أو دوخة أو انزعاج في الصدر أو ضيق تنفس غير معتاد.",
+        "pregnancy": "خلال الحمل، تجنبي الاستلقاء على الظهر والقفز وحبس النفس، ويجب أن تستطيعي الكلام أثناء التمرين.",
+        "postpartum": "بعد الولادة، عودي إلى التمارين تدريجياً وتجنبي تمارين البطن القوية قبل موافقة الطبيب.",
+        "chest_pain": "ألم الصدر يجب أن يفحصه الطبيب قبل أي نشاط بدني. اطلب المساعدة العاجلة إذا ظهر أثناء المجهود.",
+        "cardiac": "مع وجود مشكلة في القلب، حافظ على مجهود خفيف وتجنب الضغط على نفسك أو حبس النفس.",
+        "hypertension": "مع ارتفاع ضغط الدم، تنفس بشكل متواصل وتجنب حبس النفس والأوزان الثقيلة والتمارين فوق الرأس.",
+        "surgery": "بعد عملية جراحية حديثة، لا تتمرن إلا بموافقة الجراح وتجنب إجهاد المنطقة التي أجريت فيها العملية.",
+        "injury": "تجنب أي حركة تضغط على مكان الإصابة أو تسبب لك ألماً.",
+        "joint": "حافظ على حركات الركبة بطيئة وبدون ألم، وقلل مدى الحركة إذا لزم الأمر.",
+        "back": "حافظ على ظهرك مستقيماً وتجنب الحركات التي تسبب ألم الظهر.",
+        "bone": "تجنب القفز والالتواء وثني الظهر إلى الأمام.",
+        "asthma": "احتفظ ببخاخك قريباً منك وقم بالإحماء تدريجياً.",
+        "diabetes": "إذا كنت تستعمل علاجاً لخفض السكر، راقب نسبة السكر واحتفظ بمصدر سكر سريع قريباً منك.",
+        "older_adult": "استعن بكرسي أو حائط إذا لم تكن متأكداً من توازنك.",
+    },
+}
+
+FALLBACK_WORKOUT_TEXTS = {
+    "en": {
+        "title": "Today's guided workout",
+        "description": "A short video-guided session built from your goal, activity level and health profile.",
+        "warmup": "3–5 minutes of easy marching on the spot, shoulder rolls and gentle joint circles.",
+        "cooldown": "3–5 minutes of slow breathing and gentle stretching of the muscles you worked.",
+        "reason_cold_start": "We don't have activity data for you yet, so this is a short, conservative session. Your daily check-ins will help adapt the next ones.",
+        "reason_activity": "The exercises, volume and intensity are matched to your recent activity and today's focus.",
+        "reason_safety": "Exercises that are not suitable for your health profile were excluded.",
+    },
+    "fr": {
+        "title": "Séance guidée du jour",
+        "description": "Une courte séance guidée en vidéo, construite selon votre objectif, votre niveau d'activité et votre profil de santé.",
+        "warmup": "3 à 5 minutes de marche sur place, rotations des épaules et mobilisation douce des articulations.",
+        "cooldown": "3 à 5 minutes de respiration lente et d'étirements doux des muscles travaillés.",
+        "reason_cold_start": "Nous n'avons pas encore de données d'activité, cette séance est donc courte et prudente. Vos check-ins quotidiens permettront d'adapter les prochaines.",
+        "reason_activity": "Les exercices, le volume et l'intensité sont adaptés à votre activité récente et à l'objectif du jour.",
+        "reason_safety": "Les exercices non adaptés à votre profil de santé ont été exclus.",
+    },
+    "ar": {
+        "title": "حصة التمارين الموجهة لليوم",
+        "description": "حصة قصيرة بالفيديو حضّرناها حسب هدفك ومستوى نشاطك وحالتك الصحية.",
+        "warmup": "3 إلى 5 دقائق من المشي في المكان وتدوير الكتفين وتحريك المفاصل بلطف.",
+        "cooldown": "3 إلى 5 دقائق من التنفس البطيء والتمطيط الخفيف للعضلات التي اشتغلت عليها.",
+        "reason_cold_start": "ليست لدينا بعد بيانات عن نشاطك، لذلك هذه الحصة قصيرة وحذرة. تسجيلاتك اليومية ستساعدنا على تكييف الحصص القادمة.",
+        "reason_activity": "التمارين وعدد المجموعات والشدة مناسبة لنشاطك الأخير ولهدف اليوم.",
+        "reason_safety": "تم استبعاد التمارين غير المناسبة لحالتك الصحية.",
+    },
+}
+
+DOSE_TABLE = {
+    "reps": {1: (2, 8), 2: (3, 10), 3: (3, 12)},
+    "reps_side": {1: (2, 8), 2: (3, 10), 3: (3, 12)},
+    "seconds": {1: (2, 20), 2: (3, 30), 3: (3, 40)},
+    "minutes": {1: 5, 2: 8, 3: 10},
+}
+
+DOSE_FORMATS = {
+    "en": {
+        "reps": "{sets} × {count} reps",
+        "reps_side": "{sets} × {count} reps per side",
+        "seconds": "{sets} × {count} sec",
+        "minutes": "{count} min",
+    },
+    "fr": {
+        "reps": "{sets} × {count} répétitions",
+        "reps_side": "{sets} × {count} répétitions par côté",
+        "seconds": "{sets} × {count} s",
+        "minutes": "{count} min",
+    },
+    "ar": {
+        "reps": "{sets} × {count} تكرارات",
+        "reps_side": "{sets} × {count} تكرارات لكل جهة",
+        "seconds": "{sets} × {count} ثانية",
+        "minutes": "{count} دقائق",
+    },
+}
+
+INTENSITY_LABELS = {
+    "fr": {
+        "light": "légère",
+        "light to moderate": "légère à modérée",
+        "moderate": "modérée",
+        "moderate to high": "modérée à élevée",
+    },
+    "ar": {
+        "light": "خفيفة",
+        "light to moderate": "خفيفة إلى متوسطة",
+        "moderate": "متوسطة",
+        "moderate to high": "متوسطة إلى مرتفعة",
+    },
+}
+
+FREQUENCY_LABELS = {
+    "fr": {
+        "today": "Aujourd'hui",
+        "3 times per week": "3 fois par semaine",
+        "as approved by doctor": "selon l'avis du médecin",
+        "most days of the week": "la plupart des jours de la semaine",
+    },
+    "ar": {
+        "today": "اليوم",
+        "3 times per week": "3 مرات في الأسبوع",
+        "as approved by doctor": "حسب موافقة الطبيب",
+        "most days of the week": "أغلب أيام الأسبوع",
+    },
+}
+
+WORKOUT_LINE_SEPARATOR = " — "
+
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+def _to_float(value) -> float | None:
+    try:
+        return float(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _conditions_text(merged_profile: dict) -> str:
+    conditions = (merged_profile or {}).get("medical_conditions") or []
+    if not isinstance(conditions, list):
+        conditions = [conditions]
+    return " ".join(str(item).lower() for item in conditions)
+
+
+def _intensity_to_level(intensity) -> int:
+    text = str(intensity or "").lower()
+    if "high" in text:
+        return 3
+    if "moderate" in text:
+        return 2
+    return 1
+
+
+def normalize_sex(sex: str | None) -> str | None:
+    value = str(sex or "").strip().lower()
+
+    if value == "male":
+        return "male"
+
+    if value == "female":
+        return "female"
+
+    return None
+
+
+def resolve_catalog_sex(
+    sex: str | None,
+    merged_profile: dict | None = None,
+) -> str:
+    """Always returns a catalog, so every user can receive a workout."""
+    normalized = normalize_sex(sex)
+    if normalized:
+        return normalized
+
+    conditions_text = _conditions_text(merged_profile or {})
+    for rule in EXERCISE_CONDITION_RULES:
+        if rule["note"] in {"pregnancy", "postpartum"} and any(
+            term in conditions_text for term in rule["terms"]
+        ):
+            return "female"
+
+    return DEFAULT_CATALOG_SEX
+
+
+def build_exercise_safety_profile(
+    merged_profile: dict,
+    exercise_strategy: dict,
+) -> dict:
+    merged_profile = merged_profile or {}
+    exercise_strategy = exercise_strategy or {}
+    today_program = exercise_strategy.get("today_program") or {}
+
+    conditions_text = _conditions_text(merged_profile)
+    excluded_tags: set[str] = set()
+    notes: list[str] = []
+    requires_clearance = False
+    has_restrictions = False
+
+    max_level = _intensity_to_level(
+        today_program.get("intensity")
+        or exercise_strategy.get("intensity")
+    )
+
+    for rule in EXERCISE_CONDITION_RULES:
+        if any(term in conditions_text for term in rule["terms"]):
+            has_restrictions = True
+            excluded_tags |= rule["exclude"]
+            if rule.get("max_level"):
+                max_level = min(max_level, rule["max_level"])
+            requires_clearance = requires_clearance or rule["clearance"]
+            if rule["note"] not in notes:
+                notes.append(rule["note"])
+
+    age = _to_float(merged_profile.get("age"))
+    if age is not None and age >= 75:
+        has_restrictions = True
+        excluded_tags |= {HIGH_IMPACT, HIGH_INTENSITY, BALANCE}
+        max_level = min(max_level, 1)
+        notes.append("older_adult")
+    elif age is not None and age >= 60:
+        has_restrictions = True
+        excluded_tags |= {HIGH_IMPACT, HIGH_INTENSITY}
+        max_level = min(max_level, 2)
+        notes.append("older_adult")
+
+    bmi = _to_float(merged_profile.get("bmi"))
+    if bmi is not None and bmi >= 30:
+        has_restrictions = True
+        excluded_tags.add(HIGH_IMPACT)
+        max_level = min(max_level, 2)
+
+    if has_restrictions:
+        excluded_tags.add(UNVERIFIED)
+
+    return {
+        "excluded_tags": excluded_tags,
+        "max_level": max(1, max_level),
+        "requires_medical_clearance": requires_clearance,
+        "notes": list(dict.fromkeys(notes)),
+        "has_restrictions": has_restrictions,
+    }
+
+
+def is_exercise_displayable(exercise_key: str, safety: dict) -> bool:
+    """Exact rule used to decide whether an exercise video can be shown.
+
+    Shared by the LLM catalog, attach_exercise_videos and the fallback, so
+    every exercise offered can actually be displayed. Equipment exercises
+    are included: users do not choose with/without equipment.
+    """
+    return is_exercise_allowed(
+        exercise_key,
+        safety,
+        enforce_level=True,
+        allow_unverified=False,
+    )
+
+
+def is_exercise_allowed(
+    exercise_key: str,
+    safety: dict,
+    *,
+    enforce_level: bool = False,
+    bodyweight_only: bool = False,
+    allow_unverified: bool = True,
+) -> bool:
+    meta = EXERCISE_LIBRARY.get(exercise_key)
+
+    if meta is None:
+        # Unknown video (added to storage but not to the library):
+        # never used in the fallback, and blocked for restricted users.
+        return allow_unverified and not safety.get("has_restrictions")
+
+    if not allow_unverified and UNVERIFIED in meta["tags"]:
+        return False
+
+    if meta["tags"] & safety["excluded_tags"]:
+        return False
+
+    if enforce_level and meta["level"] > safety["max_level"]:
+        return False
+
+    if bodyweight_only and meta["equipment"]:
+        return False
+
+    return True
+
+
+def exercise_display_name(exercise_key: str, language: str) -> str:
+    """Canonical name of the movement shown in the video."""
+    meta = EXERCISE_LIBRARY.get(exercise_key)
+    if meta:
+        return meta["names"].get(language) or meta["names"]["en"]
+    return exercise_key.replace("_", " ").title()
+
+
+def default_exercise_dose(exercise_key: str, level: int, language: str) -> str:
+    meta = EXERCISE_LIBRARY.get(exercise_key)
+    if not meta:
+        return ""
+
+    level = min(max(int(level), 1), 3)
+    dose_type = meta["dose"]
+    template = DOSE_FORMATS[language][dose_type]
+
+    if dose_type == "minutes":
+        return template.format(count=DOSE_TABLE["minutes"][level])
+
+    sets, count = DOSE_TABLE[dose_type][level]
+    return template.format(sets=sets, count=count)
+
+
+def format_workout_line(name: str, dose: str) -> str:
+    return f"{name}{WORKOUT_LINE_SEPARATOR}{dose}" if dose else name
+
+
+def _clean_llm_dose(value) -> str:
+    if not isinstance(value, str):
+        return ""
+    value = " ".join(value.split())
+    # A dose is short ("3 × 10", "30 sec"); anything longer probably
+    # contains an exercise name and is discarded.
+    return value if 0 < len(value) <= 40 else ""
+
+
+def _localize_intensity(value, language: str) -> str:
+    text = str(value or "").strip()
+    return INTENSITY_LABELS.get(language, {}).get(text.lower(), text)
+
+
+def _localize_frequency(value, language: str) -> str:
+    text = str(value or "").strip()
+    return FREQUENCY_LABELS.get(language, {}).get(text.lower(), text)
+
+
+def _localize_duration(value, language: str) -> str:
+    text = str(value or "").strip()
+    if language == "ar":
+        return text.replace("minutes", "دقيقة")
+    return text
+
+
+def _apply_safety_fields(recommendation: dict, safety: dict, language: str) -> None:
+    texts = EXERCISE_SAFETY_NOTES[language]
+    notes = []
+
+    if safety["requires_medical_clearance"]:
+        notes.append(texts["clearance"])
+
+    notes += [texts[note] for note in safety["notes"] if note in texts]
+    notes.append(texts["general"])
+
+    recommendation["requires_medical_clearance"] = safety[
+        "requires_medical_clearance"
+    ]
+    recommendation["safety_notes"] = list(dict.fromkeys(notes))
+
+
+def _has_activity_evidence(merged_profile: dict) -> bool:
+    return bool(
+        merged_profile.get("average_steps_last_7_days") is not None
+        or merged_profile.get("recent_activities")
+        or merged_profile.get("recurring_activity_patterns")
+    )
+
+
+def _recently_used_exercise_keys(merged_profile: dict) -> set[str]:
+    name_index = {}
+    for key, meta in EXERCISE_LIBRARY.items():
+        for name in meta["names"].values():
+            name_index.setdefault(name.lower(), set()).add(key)
+
+    recent = (
+        (merged_profile.get("recent_recommendations_14_days") or {})
+        .get("exercise_recommendations")
+        or []
+    )
+
+    used = set()
+    for item in recent:
+        if isinstance(item, str):
+            try:
+                item = json.loads(item)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                continue
+        if not isinstance(item, dict):
+            continue
+        for line in item.get("main_workout") or []:
+            prefix = str(line).split(WORKOUT_LINE_SEPARATOR)[0].strip().lower()
+            used |= name_index.get(prefix, set())
+
+    return used
+
+
+def _pick_phase_exercise(
+    phase: str,
+    candidates: list[str],
+    exclude: set[str],
+    recently_used: set[str],
+    seed: int,
+    prefer: str | None = None,
+) -> str | None:
+    """Rotate suitable warm-up and cool-down exercises."""
+
+    options = sorted(
+        key for key in candidates
+        if key not in exclude
+        and exercise_has_category(key, phase)
+    )
+
+    if not options:
+        return None
+
+    size = len(options)
+
+    ranked = sorted(
+        options,
+        key=lambda key: (
+            key in recently_used,
+            (options.index(key) + seed) % size,
+            not (prefer and exercise_has_category(key, prefer)),
+        ),
+    )
+
+    return ranked[0]
+
+
+def attach_phase_media(
+    recommendation: dict,
+    video_catalog: dict,
+    safety: dict,
+    merged_profile: dict,
+    language: str,
+) -> None:
+    """Add one warm-up and one cool-down video to a workout (additive fields)."""
+    allowed = [
+        key for key in video_catalog
+        if key in EXERCISE_LIBRARY and is_exercise_displayable(key, safety)
+    ]
+    used = set(recommendation.get("exercise_keys") or [])
+    recently_used = _recently_used_exercise_keys(merged_profile)
+    seed = date.today().toordinal() + sum(
+        ord(char) for char in str(merged_profile.get("user_id") or "")
+    )
+
+    for phase, prefer in (("warmup", None), ("cooldown", "stretch")):
+        key = _pick_phase_exercise(
+            phase, allowed, used, recently_used, seed, prefer=prefer
+        )
+        media = []
+        if key:
+            used.add(key)
+            media.append({
+                "exercise_key": key,
+                "exercise_name": exercise_display_name(key, language),
+                "dose": default_exercise_dose(key, 1, language),
+                "equipment": EXERCISE_LIBRARY[key]["equipment"],
+                "video_url": video_catalog[key],
+                "has_video": True,
+                "display_type": "video",
+            })
+        recommendation[f"{phase}_media"] = media
+
+
+def _plan_categories(exercise_strategy: dict, merged_profile: dict) -> list[str]:
+    today_program = (exercise_strategy or {}).get("today_program") or {}
+    focus = " ".join([
+        str(today_program.get("focus") or ""),
+        str(today_program.get("activity") or ""),
+    ]).lower()
+
+    if "walking" in focus:
+        categories = ["cardio", "lower", "mobility", "upper"]
+    elif any(word in focus for word in (
+        "stress", "mobility", "recovery", "safety", "balance", "relief",
+    )):
+        categories = ["mobility", "core", "lower", "mobility"]
+    elif "lower" in focus:
+        categories = ["cardio", "lower", "lower", "core"]
+    elif "upper" in focus:
+        categories = ["cardio", "upper", "upper", "core"]
+    elif "cardio" in focus:
+        categories = ["cardio", "lower", "upper", "core"]
+    elif "strength" in focus or "full body" in focus:
+        categories = ["lower", "upper", "core", "lower"]
+    else:
+        categories = ["cardio", "lower", "upper", "core"]
+
+    bmi = _to_float(merged_profile.get("bmi"))
+    if bmi is not None and bmi < 18.5:
+        # Low BMI: avoid excessive cardio, support strength.
+        categories = [
+            "upper" if category == "cardio" else category
+            for category in categories
+        ]
+
+    return categories
+
+
+# ---------------------------------------------------------------------------
+# Public functions (same names/signatures as before)
+# ---------------------------------------------------------------------------
+def get_available_exercise_keys(
+    sex: str | None,
+    merged_profile: dict | None = None,
+    exercise_strategy: dict | None = None,
+) -> list[str]:
+    catalog_sex = resolve_catalog_sex(sex, merged_profile)
+    keys = list(EXERCISE_VIDEO_URLS.get(catalog_sex, {}).keys())
+
+    if merged_profile is None:
+        return keys
+
+    safety = build_exercise_safety_profile(
+        merged_profile, exercise_strategy or {}
+    )
+    return [key for key in keys if is_exercise_allowed(key, safety)]
+
+
+def get_llm_exercise_catalog(
+    sex: str | None,
+    merged_profile: dict,
+    exercise_strategy: dict,
+) -> list[dict]:
+    """Exercises the LLM may choose from, with their metadata.
+
+    Uses exactly the same filter as attach_exercise_videos, so every
+    exercise offered to the LLM can actually be displayed.
+    """
+    merged_profile = merged_profile or {}
+    language = normalize_language(merged_profile.get("language", "ar"))
+    catalog_sex = resolve_catalog_sex(sex, merged_profile)
+    safety = build_exercise_safety_profile(merged_profile, exercise_strategy)
+    recently_used = _recently_used_exercise_keys(merged_profile)
+
+    catalog = []
+    for key in EXERCISE_VIDEO_URLS.get(catalog_sex, {}):
+        meta = EXERCISE_LIBRARY.get(key)
+        if not meta or not is_exercise_displayable(key, safety):
+            continue
+        catalog.append({
+            "key": key,
+            "name": exercise_display_name(key, language),
+            "category": meta["category"],
+            "categories": list(meta["categories"]),
+            "level": meta["level"],
+            "dose_type": meta["dose"],
+            "equipment": meta["equipment"],
+            "used_in_last_14_days": key in recently_used,
+        })
+
+    return catalog
+
+
+def choose_catalog_fallback(
+    sex: str | None,
+    merged_profile: dict,
+    exercise_strategy: dict,
+) -> list[str]:
+    """Personalized, medically filtered fallback. Never returns an empty list."""
+    merged_profile = merged_profile or {}
+    catalog_sex = resolve_catalog_sex(sex, merged_profile)
+    catalog = EXERCISE_VIDEO_URLS.get(catalog_sex, {})
+    safety = build_exercise_safety_profile(merged_profile, exercise_strategy)
+    recently_used = _recently_used_exercise_keys(merged_profile)
+
+    allowed = sorted(
+        key for key in catalog
+        if key in EXERCISE_LIBRARY
+        and is_exercise_displayable(key, safety)
+    )
+
+    seed = date.today().toordinal() + sum(
+        ord(char) for char in str(merged_profile.get("user_id") or "")
+    )
+
+    def ranked(candidates: list[str]) -> list[str]:
+        ordered = sorted(candidates)
+        size = len(ordered) or 1
+        return sorted(
+            ordered,
+            key=lambda key: (
+                key in recently_used,                                   # variety
+                safety["max_level"] - EXERCISE_LIBRARY[key]["level"],   # fitness
+                (ordered.index(key) + seed) % size,                     # rotation
+            ),
+        )
+
+    count = (
+        4
+        if safety["max_level"] >= 2 and not safety["requires_medical_clearance"]
+        else 3
+    )
+
+    selected: list[str] = []
+    categories = _plan_categories(exercise_strategy, merged_profile)
+
+    # When today's program is walking-based, use the walking video itself.
+    today_program = (exercise_strategy or {}).get("today_program") or {}
+    if (
+        "walking" in str(today_program.get("focus") or "").lower()
+        and "walking" in allowed
+    ):
+        selected.append("walking")
+        if "cardio" in categories:
+            categories.remove("cardio")
+
+    for category in categories:
+        if len(selected) >= count:
+            break
+        candidates = [
+            key for key in allowed
+            if key not in selected
+            and exercise_has_category(key, category)
+        ]
+        if candidates:
+            selected.append(ranked(candidates)[0])
+
+    for key in ranked([key for key in allowed if key not in selected]):
+        if len(selected) >= count:
+            break
+        selected.append(key)
+
+    if not selected:
+        return []
+
+    return selected
+
+
+def build_fallback_workout(
+    sex: str | None,
+    merged_profile: dict,
+    exercise_strategy: dict,
+) -> dict | None:
+    merged_profile = merged_profile or {}
+    exercise_strategy = exercise_strategy or {}
+    language = normalize_language(merged_profile.get("language", "ar"))
+    catalog = EXERCISE_VIDEO_URLS[resolve_catalog_sex(sex, merged_profile)]
+    safety = build_exercise_safety_profile(merged_profile, exercise_strategy)
+    keys = choose_catalog_fallback(sex, merged_profile, exercise_strategy)
+
+    if not keys:
+        return None
+
+    texts = FALLBACK_WORKOUT_TEXTS[language]
+    today_program = exercise_strategy.get("today_program") or {}
+
+    main_workout = []
+    exercise_media = []
+
+    for key in keys:
+        name = exercise_display_name(key, language)
+        dose = default_exercise_dose(key, safety["max_level"], language)
+        main_workout.append(format_workout_line(name, dose))
+        exercise_media.append({
+            "exercise_key": key,
+            "exercise_name": name,
+            "dose": dose,
+            "equipment": EXERCISE_LIBRARY[key]["equipment"],
+            "video_url": catalog[key],
+            "has_video": True,
+            "display_type": "video",
+        })
+
+    reason_parts = [
+        texts["reason_activity"]
+        if _has_activity_evidence(merged_profile)
+        else texts["reason_cold_start"]
+    ]
+    if safety["has_restrictions"]:
+        reason_parts.append(texts["reason_safety"])
+
+    recommendation = {
+        "title": texts["title"],
+        "description": texts["description"],
+        "duration": _localize_duration(
+            today_program.get("duration") or exercise_strategy.get("duration"),
+            language,
+        ),
+        "frequency": _localize_frequency(
+            today_program.get("frequency") or exercise_strategy.get("frequency"),
+            language,
+        ),
+        "intensity": _localize_intensity(
+            today_program.get("intensity") or exercise_strategy.get("intensity"),
+            language,
+        ),
+        "warmup": texts["warmup"],
+        "main_workout": main_workout,
+        "exercise_keys": keys,
+        "exercise_media": exercise_media,
+        "cooldown": texts["cooldown"],
+        "reason": " ".join(reason_parts),
+        "is_fallback": True,
+    }
+
+    attach_phase_media(recommendation, catalog, safety, merged_profile, language)
+    _apply_safety_fields(recommendation, safety, language)
+    return recommendation
+
+
+def _minimal_safe_workout(
+    sex: str | None,
+    merged_profile: dict,
+    exercise_strategy: dict,
+) -> dict:
+    """Last-resort workout: built without any optional logic so it cannot fail."""
+    merged_profile = merged_profile or {}
+    language = normalize_language(merged_profile.get("language", "ar"))
+
+    try:
+        catalog_sex = resolve_catalog_sex(sex, merged_profile)
+    except Exception:
+        catalog_sex = DEFAULT_CATALOG_SEX
+
+    catalog = (
+        EXERCISE_VIDEO_URLS.get(catalog_sex)
+        or EXERCISE_VIDEO_URLS[DEFAULT_CATALOG_SEX]
+    )
+    key = SAFE_FLOOR_EXERCISE_KEY.get(catalog_sex)
+    if key not in catalog:
+        key = next(iter(catalog))
+
+    name = exercise_display_name(key, language)
+    dose = default_exercise_dose(key, 1, language)
+    texts = FALLBACK_WORKOUT_TEXTS[language]
+
+    recommendation = {
+        "title": texts["title"],
+        "description": texts["description"],
+        "duration": _localize_duration("15-20 minutes", language),
+        "frequency": _localize_frequency("Today", language),
+        "intensity": _localize_intensity("light", language),
+        "warmup": texts["warmup"],
+        "main_workout": [format_workout_line(name, dose)],
+        "exercise_keys": [key],
+        "exercise_media": [{
+            "exercise_key": key,
+            "exercise_name": name,
+            "dose": dose,
+            "equipment": (EXERCISE_LIBRARY.get(key) or {}).get("equipment"),
+            "video_url": catalog[key],
+            "has_video": True,
+            "display_type": "video",
+        }],
+        "cooldown": texts["cooldown"],
+        "reason": texts["reason_cold_start"],
+        "is_fallback": True,
+    }
+
+    try:
+        safety = build_exercise_safety_profile(merged_profile, exercise_strategy)
+        _apply_safety_fields(recommendation, safety, language)
+    except Exception:
+        recommendation["requires_medical_clearance"] = True
+        recommendation["safety_notes"] = [
+            EXERCISE_SAFETY_NOTES[language]["clearance"],
+            EXERCISE_SAFETY_NOTES[language]["general"],
+        ]
+
+    return recommendation
+
+
+def attach_exercise_videos(
+    plan: dict,
+    sex: str | None,
+    merged_profile: dict,
+    exercise_strategy: dict,
+) -> dict:
+    """Attach videos to the workout. Always returns at least one workout."""
+    if not isinstance(plan, dict):
+        plan = {}
+
+    merged_profile = merged_profile or {}
+    exercise_strategy = exercise_strategy or {}
+
+    raw_recommendations = plan.get("exercise_recommendations")
+    if isinstance(raw_recommendations, dict):
+        raw_recommendations = [raw_recommendations]
+    if not isinstance(raw_recommendations, list):
+        raw_recommendations = []
+
+    valid_recommendations = []
+
+    try:
+        language = normalize_language(merged_profile.get("language", "ar"))
+        catalog_sex = resolve_catalog_sex(sex, merged_profile)
+        video_catalog = EXERCISE_VIDEO_URLS.get(catalog_sex, {})
+        safety = build_exercise_safety_profile(merged_profile, exercise_strategy)
+
+        for recommendation in raw_recommendations:
+            if not isinstance(recommendation, dict):
+                continue
+
+            # The key is the source of truth: the displayed name is derived
+            # from it, so it always matches the video.
+            exercise_keys = recommendation.get("exercise_keys") or []
+            if not isinstance(exercise_keys, list):
+                exercise_keys = [exercise_keys]
+
+            exercise_doses = recommendation.pop("exercise_doses", None) or []
+            if not isinstance(exercise_doses, list):
+                exercise_doses = []
+
+            valid_workout = []
+            valid_keys = []
+            exercise_media = []
+
+            for index, raw_key in enumerate(exercise_keys):
+                if not isinstance(raw_key, str):
+                    continue
+
+                exercise_key = raw_key.strip()
+
+                if exercise_key in valid_keys:
+                    continue
+
+                video_url = video_catalog.get(exercise_key)
+
+                if not video_url:
+                    print(
+                        "[WORKOUT] Removed exercise without video:",
+                        exercise_key,
+                    )
+                    continue
+
+                if not is_exercise_displayable(exercise_key, safety):
+                    print(
+                        "[WORKOUT] Removed medically unsuitable exercise:",
+                        exercise_key,
+                    )
+                    continue
+
+                exercise_name = exercise_display_name(exercise_key, language)
+
+                dose = _clean_llm_dose(
+                    exercise_doses[index] if index < len(exercise_doses) else None
+                ) or default_exercise_dose(
+                    exercise_key, safety["max_level"], language
+                )
+
+                valid_workout.append(format_workout_line(exercise_name, dose))
+                valid_keys.append(exercise_key)
+
+                exercise_media.append({
+                    "exercise_key": exercise_key,
+                    "exercise_name": exercise_name,
+                    "dose": dose,
+                    "equipment": EXERCISE_LIBRARY[exercise_key]["equipment"],
+                    "video_url": video_url,
+                    "has_video": True,
+                    "display_type": "video",
+                })
+
+            if not exercise_media:
+                continue
+
+            recommendation["main_workout"] = valid_workout
+            recommendation["exercise_keys"] = valid_keys
+            recommendation["exercise_media"] = exercise_media
+            recommendation["is_fallback"] = False
+            attach_phase_media(
+                recommendation, video_catalog, safety, merged_profile, language
+            )
+            _apply_safety_fields(recommendation, safety, language)
+            valid_recommendations.append(recommendation)
+
+    except Exception as exc:
+        print("[WORKOUT] Error while attaching videos:", exc)
+        valid_recommendations = []
+
+    # 1st fallback: personalized, medically filtered workout.
+    if not valid_recommendations:
+        try:
+            fallback = build_fallback_workout(
+                sex,
+                merged_profile,
+                exercise_strategy,
+            )
+            if fallback and fallback.get("exercise_media"):
+                valid_recommendations = [fallback]
+        except Exception as exc:
+            print("[WORKOUT] Personalized fallback failed:", exc)
+
+    # 2nd fallback: minimal safe workout, so a workout is ALWAYS shown.
+    if not valid_recommendations:
+        plan["exercise_recommendations"] = []
+        plan["exercise_safety_status"] = "no_suitable_video_workout"
+        return plan
+
+    plan["exercise_recommendations"] = valid_recommendations
+    return plan
+
 
 def normalize_language(language: str | None) -> str:
     language = str(language or "ar").lower().strip()
@@ -1969,6 +3620,21 @@ def generate_dynamic_plan_with_llm(
     )
 
     language_name = LANGUAGE_NAMES[language]
+    exercise_sex = normalize_sex(
+        merged_profile.get("sex")
+    )
+
+    # Only exercises that have a video for this user, are medically allowed
+    # and pass the display filter — with their metadata.
+    exercise_catalog = get_llm_exercise_catalog(
+        exercise_sex,
+        merged_profile,
+        exercise_strategy,
+    )
+    available_exercise_keys = [item["key"] for item in exercise_catalog]
+    exercise_max_level = build_exercise_safety_profile(
+        merged_profile, exercise_strategy
+    )["max_level"]
     recent_recommendations = merged_profile.get(
         "recent_recommendations_14_days", []
     ) or []
@@ -2076,12 +3742,61 @@ Exercise strategy:
 The exercise recommendation MUST follow these constraints:
 - Main activity: {exercise_strategy.get("main_activity")}
 - Exercise type: {exercise_strategy.get("exercise_type")}
-- Allowed examples: {exercise_strategy.get("exercise_examples")}
+- Suggested activity context (not mandatory exercise names): {exercise_strategy.get("exercise_examples")}
 - Duration: {exercise_strategy.get("duration")}
 - Intensity: {exercise_strategy.get("intensity")}
 - Do not replace the requested exercise type with another workout category.
 Additional generation instruction:
 {additional_instruction or "No additional instruction."}
+Available exercise video catalog for this user (already filtered for
+sex, medical conditions and level; bodyweight and equipment exercises
+are both allowed):
+{json.dumps(exercise_catalog, ensure_ascii=False, separators=(",", ":"))}
+
+Maximum exercise level allowed today: {exercise_max_level}
+(1 = beginner, 2 = intermediate, 3 = advanced)
+
+
+
+
+
+Video-selection rules:
+- Select every main_workout exercise exclusively from
+  the available exercise video catalog.
+- exercise_keys must contain only "key" values from the catalog.
+- Each exercise has a main "category" and a list of "categories"
+  (an exercise can belong to several). Match today's focus using ANY of
+  its categories (cardio, lower, upper, core, mobility), and use its
+  "level" to match the user's fitness and today's intensity.
+- Categories "warmup", "cooldown" and "stretch" describe session phases.
+  Choose main_workout exercises for the training part; matching warm-up
+  and cool-down videos are attached automatically, so describe them in
+  the "warmup" and "cooldown" text.
+- Use "dose_type" for the dose format: reps, reps_side (reps per side),
+  seconds (timed sets) or minutes (continuous).
+- Prefer exercises with "used_in_last_14_days": false to keep variety.
+- Every exercise must have a valid exercise_key.
+- The exercise name must accurately describe the
+  movement demonstrated in its video.
+- Never invent exercises or video keys.
+- Personalize exercises, sets, repetitions, duration,
+  and order using the user's goals, age, BMI, recent
+  activity, average steps, consistency, and exercise strategy.
+- Respect known medical conditions and safety limitations.
+- Do not assume unknown fitness abilities.
+- Exercises with "equipment" (dumbbells, kettlebell, bike, etc.) may be
+  chosen; mix them with bodyweight exercises when it fits today's focus.
+- Do not generate exercises outside the video catalog.
+- Return at least 3 suitable catalog exercises whenever
+  at least 3 safe options are available.
+- If fewer than 3 safe exercises exist, use fewer.
+- exercise_doses[i] must contain ONLY the sets/repetitions or duration
+  for exercise_keys[i] (for example "3 × 10", "3 × 30 sec", "8 min"),
+  written in {language_name}. Never put an exercise name in exercise_doses.
+- The displayed name of each exercise is taken from its video, so
+  main_workout[i] must describe exactly the movement of exercise_keys[i].
+
+
 
 Rules:
 Output language: {language}
@@ -2314,9 +4029,19 @@ JSON schema:
       "intensity":"",
       "warmup":"",
       "main_workout":[
-        "",
-        "",
-        ""
+          "",
+          "",
+          ""
+      ],
+      "exercise_keys":[
+          "",
+          "",
+          ""
+      ],
+      "exercise_doses":[
+          "",
+          "",
+          ""
       ],
       "cooldown":"",
       "reason":""
@@ -2347,7 +4072,7 @@ JSON schema:
                     "content": prompt
                 }
             ],
-            temperature=0.3,
+            temperature=0.5,
             response_format={"type": "json_object"},
         )
 
@@ -2905,6 +4630,13 @@ def build_recommendation_agent_output(user_profile: dict):
     )
 
 
+    # Guard: the LLM may return null or a non-list here; the workout is
+    # rebuilt by attach_exercise_videos below, so it is always shown.
+    if not isinstance(dynamic_plan, dict):
+        dynamic_plan = {}
+    if not isinstance(dynamic_plan.get("exercise_recommendations"), list):
+        dynamic_plan["exercise_recommendations"] = []
+
     recent_exercises = recent_recommendations.get(
         "exercise_recommendations",
         [],
@@ -2923,7 +4655,7 @@ def build_recommendation_agent_output(user_profile: dict):
         for exercise in generated_exercises
     )
 
-    if has_duplicate_exercise:
+    if False and has_duplicate_exercise:
 
         today_focus = str(
             exercise_strategy["today_program"].get("focus", "")
@@ -3098,7 +4830,12 @@ def build_recommendation_agent_output(user_profile: dict):
                 "after one retry."
             )
     
-
+    dynamic_plan = attach_exercise_videos(
+        plan=dynamic_plan,
+        sex=merged_profile.get("sex"),
+        merged_profile=merged_profile,
+        exercise_strategy=exercise_strategy,
+    )
     output = {
         "profile_summary": {
             "goals": merged_profile.get("goals"),

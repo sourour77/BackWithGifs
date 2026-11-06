@@ -1,4 +1,5 @@
 import os
+import re
 from dotenv import load_dotenv
 from openai import OpenAI
 from rapidfuzz import fuzz
@@ -137,6 +138,147 @@ Description: Shifa is a wellness and supplement brand.
 General rule: Shifa products are dietary supplements, not medications.
 They support a healthy lifestyle and do not replace medical advice.
 """
+
+# =========================
+# DELIVERY TIME (24/48h)
+# =========================
+DELIVERY_TIME = "24/48h"
+
+DELIVERY_TIME_TEXT = {
+    "ar": "⏱️ مدة التوصيل: بين 24 و 48 ساعة.",
+    "fr": "⏱️ Délai de livraison : 24 à 48h.",
+    "en": "⏱️ Delivery time: 24 to 48 hours.",
+}
+
+# Mots qui indiquent qu'on parle de livraison
+DELIVERY_WORDS = [
+    "livraison", "livrer", "livré", "livre", "delivery", "deliver", "shipping",
+    "colis", "commande",
+    "توصيل", "التوصيل", "توصل", "يوصل", "الطلبية", "طلبية",
+    "tousel", "tousl", "yousel", "yousl", "wsoul", "wousoul", "talbiya",
+]
+
+# Mots qui indiquent une question de délai
+DELIVERY_TIME_KEYWORDS = [
+    "waqt", "wa9t", "wakt", "waqtech", "wa9tech", "imta", "emta",
+    "ayem", "ayam", "sa3a", "se3a",
+    "وقت", "وقتاش", "امتى", "إمتى", "أيام", "ايام", "ساعة", "سوايع",
+    "délai", "delai", "combien de temps", "quand", "jours", "heures",
+    "how long", "how many days", "when", "days", "hours",
+    "24", "48",
+]
+
+# Mots d'usage produit : une question de suivi qui les contient
+# ne doit pas être prise pour une question de délai de livraison
+# ("قداش وقت نستعمل" = durée d'utilisation, pas de livraison).
+_USAGE_WORDS = [
+    "nesta", "نستعمل", "استعمال", "use", "utiliser", "utilisation", "usage",
+]
+
+
+def _contains_word_start(text: str, keywords: list[str]) -> bool:
+    """Le mot-clé doit commencer un mot ("tousel" trouve "touselni",
+    mais "jours" ne trouve pas "toujours")."""
+    return any(
+        re.search(rf"(?<!\w){re.escape(keyword)}", text)
+        for keyword in keywords
+    )
+
+
+def is_delivery_time_question(
+    question: str,
+    last_intent: str | None = None,
+) -> bool:
+    q = normalize_text(question)
+
+    if not _contains_word_start(q, DELIVERY_TIME_KEYWORDS):
+        return False
+
+    if _contains_word_start(q, DELIVERY_WORDS):
+        return True
+
+    # Question de suivi courte après une discussion sur la livraison,
+    # ex. "w qadeh waqt ?"
+    return (
+        last_intent == "delivery_info"
+        and len(q.split()) <= 4
+        and not _contains_word_start(q, _USAGE_WORDS)
+    )
+
+
+def build_delivery_time_answer(language: str) -> str:
+    templates = {
+        "ar": (
+            "التوصيل ياخو بين 24 و 48 ساعة ⏱️\n"
+            "تحب نعطيك زادة سوم التوصيل حسب المنتج والكمية؟"
+        ),
+        "fr": (
+            "La livraison prend 24 à 48h ⏱️\n"
+            "Voulez-vous aussi les frais de livraison selon le produit et la quantité ?"
+        ),
+        "en": (
+            "Delivery takes 24 to 48 hours ⏱️\n"
+            "Would you also like the delivery fees by product and quantity?"
+        ),
+    }
+    return templates.get(language, templates["ar"])
+
+
+# Mots tunisiens en lettres latines liés à la livraison : detect_fallback_language
+# ne les connaît pas ("waqteh tousli lcommande" était détecté comme anglais,
+# "qadeh waqt ... livraison" comme français).
+TUNISIAN_DELIVERY_MARKERS = [
+    "waqt", "wa9t", "wakt", "waqtech", "wa9tech", "waqteh", "wa9teh",
+    "imta", "emta", "tousel", "tousl", "yousel", "yousl", "wsoul", "wousoul",
+    "ayem", "ayam", "sa3a", "se3a", "qadeh", "9adeh", "qadech", "9adech",
+    "talbiya", "takhou", "takhleh", "takhlt",
+]
+
+
+def _language_of_text(text: str) -> str:
+    language = detect_fallback_language(text)
+
+    if language != "ar" and _contains_word_start(
+        normalize_text(text),
+        TUNISIAN_DELIVERY_MARKERS,
+    ):
+        return "ar"
+
+    return language
+
+
+def detect_delivery_language(
+    question: str,
+    chat_history: list | None = None,
+) -> str:
+    language = _language_of_text(question)
+
+    # "en" est la valeur par défaut de detect_fallback_language quand aucun
+    # mot n'est reconnu. Pour une réponse courte de suivi ("ey, psyllium",
+    # "ok", "oui slim pack"), on reprend la langue du dernier vrai message
+    # de l'utilisateur dans la conversation.
+    if language != "en" or len(normalize_text(question).split()) > 4:
+        return language
+
+    current = normalize_text(question)
+
+    for msg in reversed(chat_history or []):
+        if msg.get("role") != "user":
+            continue
+
+        content = msg.get("content", "")
+
+        if normalize_text(content) == current:
+            continue
+
+        if len(normalize_text(content).split()) <= 4 and _language_of_text(content) == "en":
+            continue
+
+        return _language_of_text(content)
+
+    return language
+
+
 def get_product_knowledge_dict():
     products = get_all_products()
     return {
@@ -1293,8 +1435,9 @@ def detect_intent(question: str) -> str:
     
     if any(word in q for word in [
         "livraison", "delivery", "shipping", "frais livraison",
-        "توصيل", "التوصيل", "قداش التوصيل", "توصل", "livrer"
-    ]):
+        "توصيل", "التوصيل", "قداش التوصيل", "توصل", "livrer",
+        "délai", "delai", "tousel", "tousl", "yousel", "wsoul", "يوصل",
+    ]) or is_delivery_time_question(question):
         return "delivery_info"
 
     if any(word in q for word in [
@@ -1768,6 +1911,7 @@ def is_out_of_scope(question: str, chat_history: list | None = None) -> bool:
     if intent in [
         "greeting",
         "price_offer_query",
+        "delivery_info",
         "weight_loss_advice",
         "muscle_gain_advice",
         "meal_suggestion",
@@ -2353,6 +2497,10 @@ def chatbot_response(question, user_profile=None, chat_history=None):
 
     if intent == "product_info" and last_intent == "delivery_info":
          intent = "delivery_info"
+
+    if is_delivery_time_question(question, last_intent):
+        intent = "delivery_info"
+
     profile_nutrition_rule = ""
     if intent in ["meal_suggestion", "weight_loss_advice", "calorie_question", "muscle_gain_advice"] or detect_intent_domain(question) in ["nutrition", "exercise", "health_wellness"]:
         profile_nutrition_rule = """
@@ -3107,6 +3255,65 @@ def chatbot_response(question, user_profile=None, chat_history=None):
     
 
     if intent == "delivery_info":
+        delivery_language = detect_delivery_language(
+            question,
+            chat_history,
+        )
+
+        delivery_time_line = DELIVERY_TIME_TEXT.get(
+            delivery_language,
+            DELIVERY_TIME_TEXT["ar"],
+        )
+
+        # Question sur le délai -> réponse directe, même sans produit
+        if is_delivery_time_question(question, last_intent):
+            answer = build_delivery_time_answer(delivery_language)
+
+            if detected_products:
+                delivery_info = format_delivery_info_for_products(
+                    detected_products,
+                    quantity_offers_db,
+                    bundle_offers_db,
+                )
+                answer = f"{answer}\n\n{delivery_info}"
+            else:
+                delivery_info = None
+
+            log_chat_interaction(
+                user_id,
+                {
+                    "question": question,
+                    "answer": answer,
+                    "intent": intent,
+                    "detected_product": ", ".join(detected_products) or None,
+                    "recommended_product": None,
+                    "used_memory": bool(last_product),
+                },
+            )
+
+            return {
+                "answer": answer,
+                "response": answer,
+                "intent": intent,
+                "detected_product": (
+                    detected_products[0]
+                    if len(detected_products) == 1
+                    else (detected_products or None)
+                ),
+                "recommended_product": None,
+                "recommendation_reason": None,
+                "meal_suggestion": None,
+                "calorie_info": None,
+                "usage_info": None,
+                "benefits_info": None,
+                "ingredients_info": None,
+                "precautions": None,
+                "lifestyle_suggestion": None,
+                "follow_up_question": None,
+                "price_info": None,
+                "offer_info": delivery_info,
+                "delivery_time": DELIVERY_TIME,
+            }
 
         if not detected_products:
 
@@ -3137,6 +3344,7 @@ def chatbot_response(question, user_profile=None, chat_history=None):
                 "follow_up_question": answer,
                 "price_info": None,
                 "offer_info": None,
+                "delivery_time": DELIVERY_TIME,
             }
 
         delivery_info = (
@@ -3150,7 +3358,8 @@ def chatbot_response(question, user_profile=None, chat_history=None):
         answer = (
             "أكيد، هاني نعطيك معلومات التوصيل "
             "حسب المنتج والكمية:\n"
-            f"{delivery_info}"
+            f"{delivery_info}\n\n"
+            f"{delivery_time_line}"
         )
 
         log_chat_interaction(
@@ -3188,6 +3397,7 @@ def chatbot_response(question, user_profile=None, chat_history=None):
             "follow_up_question": None,
             "price_info": None,
             "offer_info": delivery_info,
+            "delivery_time": DELIVERY_TIME,
         }
 
    
@@ -3269,6 +3479,7 @@ def chatbot_response(question, user_profile=None, chat_history=None):
         - If 1 or 2 boxes have delivery fee, mention it.
         - If 3 boxes have free delivery, mention it.
         - Do not invent delivery information.
+        - Delivery time is 24 to 48 hours (24/48h). Mention it when the user asks about delivery.
          """
         },
         {"role": "system", "content": f"Recommended best offer:\n{recommended_best_offer}"},

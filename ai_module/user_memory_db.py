@@ -1,14 +1,12 @@
 from ai_module.supabase_client import supabase
-from datetime import datetime, timedelta
-from datetime import date, timedelta
-from ai_module.supabase_client import supabase
+from datetime import datetime, date, timedelta
 
-def get_or_create_user(user_code: str):
+
+def get_or_create_user(user_code: str) -> dict:
     user_code = str(
         user_code or "demo_user"
     ).strip()
 
-    # Remove accidental surrounding quotation marks
     user_code = user_code.strip('"').strip("'")
 
     if not user_code:
@@ -27,7 +25,7 @@ def get_or_create_user(user_code: str):
     created = (
         supabase.table("users")
         .insert({
-            "user_code": user_code
+            "user_code": user_code,
         })
         .execute()
     )
@@ -35,7 +33,7 @@ def get_or_create_user(user_code: str):
     return created.data[0]
 
 
-def get_user_memory(user_code: str):
+def get_user_memory(user_code: str) -> dict:
     user = get_or_create_user(user_code)
 
     existing = (
@@ -241,7 +239,7 @@ def create_daily_checkin(
 
     return result.data[0]
 
-    return result.data[0]
+    
 def log_daily_meal(
     checkin_id: int,
     data: dict,
@@ -402,6 +400,27 @@ def calculate_bmr(
 
     return None
 
+
+def calculate_step_calories(
+    weight: float | None,
+    steps: int | None,
+) -> int:
+    if not weight or not steps:
+        return 0
+
+    try:
+        weight = float(weight)
+        steps = int(steps)
+    except (TypeError, ValueError):
+        return 0
+
+    if weight <= 0 or steps <= 0:
+        return 0
+
+    calories_per_step = 0.0005 * weight
+    return round(steps * calories_per_step)
+
+
 def calculate_daily_summary(
     checkin: dict,
     user_profile: dict,
@@ -416,6 +435,7 @@ def calculate_daily_summary(
         or []
     )
 
+    # Total calories from all meals recorded today
     calories_in = round(
         sum(
             float(
@@ -427,7 +447,8 @@ def calculate_daily_summary(
         1,
     )
 
-    activity_calories = round(
+    # Only workout calories are stored in activity logs
+    workout_calories = round(
         sum(
             float(
                 activity.get(
@@ -448,6 +469,24 @@ def calculate_daily_summary(
         for activity in activities
     )
 
+    # daily_steps already contains the highest/latest
+    # cumulative value for this day
+    daily_steps = int(
+        checkin.get("daily_steps")
+        or 0
+    )
+
+    step_calories = calculate_step_calories(
+        weight=user_profile.get("weight"),
+        steps=daily_steps,
+    )
+
+    # Workout calories + step calories
+    activity_calories = round(
+        workout_calories + step_calories,
+        1,
+    )
+
     bmr = calculate_bmr(
         user_profile.get("weight"),
         user_profile.get("height"),
@@ -455,6 +494,7 @@ def calculate_daily_summary(
         user_profile.get("sex"),
     )
 
+    # Counted once for the complete day
     sedentary_tdee = (
         round(bmr * 1.2)
         if bmr is not None
@@ -479,17 +519,20 @@ def calculate_daily_summary(
             1,
         )
 
-        weekly_change = round(
-            (net_calories * 7) / 7700,
-            2,
-        )
+        # Avoid predicting weight from an incomplete
+        # daily food log
+        if calories_in >= 800:
+            weekly_change = round(
+                (net_calories * 7) / 7700,
+                2,
+            )
 
-        if net_calories > 200:
-            weight_trend = "possible gain"
-        elif net_calories < -200:
-            weight_trend = "possible loss"
-        else:
-            weight_trend = "stable"
+            if net_calories > 200:
+                weight_trend = "possible gain"
+            elif net_calories < -200:
+                weight_trend = "possible loss"
+            else:
+                weight_trend = "stable"
 
     return {
         "checkin_id": checkin["id"],
@@ -500,22 +543,257 @@ def calculate_daily_summary(
         "meal_count": len(meals),
         "activity_count": len(activities),
         "calories_in": calories_in,
-        "activity_calories_burned": (
-            activity_calories
-        ),
+
+        # Details
+        "workout_calories_burned": workout_calories,
+        "step_calories_burned": step_calories,
+        "daily_steps": daily_steps,
+
+        # Workouts + steps
+        "activity_calories_burned": activity_calories,
+
         "activity_minutes": activity_minutes,
         "bmr": bmr,
         "sedentary_tdee": sedentary_tdee,
-        "total_calories_burned": (
-            total_calories_burned
-        ),
+        "total_calories_burned": total_calories_burned,
         "net_calories": net_calories,
         "estimated_weekly_weight_change_kg": (
             weekly_change
         ),
         "weight_trend": weight_trend,
     }
+def award_order_points(
+    user_code: str,
+    order_id: str,
+) -> dict:
+    user = get_or_create_user(user_code)
 
+    # Retrieve the confirmed order
+    order_result = (
+        supabase
+        .table("orders")
+        .select("*")
+        .eq("id", order_id)
+        .execute()
+    )
+
+    if not order_result.data:
+        return {
+            "awarded": False,
+            "points_awarded": 0,
+            "reason": "order_not_found",
+            "loyalty": get_loyalty(user_code),
+        }
+
+    order = order_result.data[0]
+
+    
+
+    # Verify that the order belongs to this user
+    order_user_id = str(
+        order.get("user_id") or ""
+    )
+
+    valid_user_ids = {
+        str(user.get("id") or ""),
+        str(user_code),
+    }
+
+    if (
+        order_user_id
+        and order_user_id not in valid_user_ids
+    ):
+        return {
+            "awarded": False,
+            "points_awarded": 0,
+            "reason": "order_user_mismatch",
+            "loyalty": get_loyalty(user_code),
+        }
+
+    # Items are stored directly as JSONB
+    order_items = order.get("items") or []
+
+    if not isinstance(order_items, list):
+        return {
+            "awarded": False,
+            "points_awarded": 0,
+            "reason": "invalid_order_items",
+            "loyalty": get_loyalty(user_code),
+        }
+
+    product_ids = []
+
+    for item in order_items:
+        product_id = (
+            item.get("product_id")
+            or item.get("id")
+        )
+
+        if product_id:
+            product_ids.append(
+                str(product_id)
+            )
+
+    if not product_ids:
+        return {
+            "awarded": False,
+            "points_awarded": 0,
+            "reason": "no_products_in_order",
+            "loyalty": get_loyalty(user_code),
+        }
+
+    # Retrieve reward points securely
+    # from the products table
+    products_result = (
+        supabase
+        .table("products")
+        .select(
+            "id, name, loyalty_points_reward"
+        )
+        .in_("id", product_ids)
+        .execute()
+    )
+
+    products = products_result.data or []
+
+    products_by_id = {
+        str(product["id"]): product
+        for product in products
+    }
+
+    total_points = 0
+    point_details = []
+
+    for item in order_items:
+        product_id = str(
+            item.get("product_id")
+            or item.get("id")
+            or ""
+        )
+
+        product = products_by_id.get(
+            product_id,
+            {},
+        )
+
+        quantity = int(
+            item.get("quantity")
+            or item.get("qty")
+            or 1
+        )
+
+        reward_per_unit = int(
+            product.get(
+                "loyalty_points_reward"
+            )
+            or 0
+        )
+
+        item_points = (
+            reward_per_unit * quantity
+        )
+
+        total_points += item_points
+
+        point_details.append({
+            "product_id": product_id,
+            "product_name": product.get(
+                "name"
+            ),
+            "quantity": quantity,
+            "points_per_unit": reward_per_unit,
+            "points_earned": item_points,
+        })
+
+    if total_points <= 0:
+        return {
+            "awarded": False,
+            "points_awarded": 0,
+            "reason": "no_reward_points",
+            "point_details": point_details,
+            "loyalty": get_loyalty(user_code),
+        }
+
+    result = award_loyalty_points(
+        user_code=user_code,
+        points=total_points,
+        transaction_type="purchase",
+        reference_id=f"order_{order_id}",
+        description=(
+            f"Points earned from order {order_id}"
+        ),
+    )
+
+    result["order_id"] = order_id
+    result["point_details"] = point_details
+
+    return result
+def award_loyalty_points(
+    user_code: str,
+    points: int,
+    transaction_type: str,
+    reference_id: str,
+    description: str = "",
+) -> dict:
+    user = get_or_create_user(user_code)
+    points = int(points)
+
+    if points <= 0:
+        return {
+            "awarded": False,
+            "points_awarded": 0,
+            "reason": "invalid_or_zero_points",
+            "loyalty": get_loyalty(user_code),
+        }
+
+    existing = (
+        supabase.table("loyalty_transactions")
+        .select("*")
+        .eq("user_id", user["id"])
+        .eq(
+            "transaction_type",
+            transaction_type,
+        )
+        .eq("reference_id", reference_id)
+        .execute()
+    )
+
+    if existing.data:
+        return {
+            "awarded": False,
+            "points_awarded": 0,
+            "reason": "already_awarded",
+            "transaction": existing.data[0],
+            "loyalty": get_loyalty(user_code),
+        }
+
+    transaction = (
+        supabase.table("loyalty_transactions")
+        .insert({
+            "user_id": user["id"],
+            "points": points,
+            "transaction_type": transaction_type,
+            "reference_id": reference_id,
+            "description": description,
+        })
+        .execute()
+    )
+
+    loyalty = add_loyalty_points(
+        user_code,
+        points,
+    )
+
+    return {
+        "awarded": True,
+        "points_awarded": points,
+        "transaction": (
+            transaction.data[0]
+            if transaction.data
+            else None
+        ),
+        "loyalty": loyalty,
+    }
 def update_daily_summary(
     user_code: str,
     user_profile: dict,
