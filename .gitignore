@@ -23,3 +23,5 @@ recommendation_agent_results.csv
 app_ui.py
 compute_kpis.py
 evaluation//Shifa-app/
+
+.venv/
