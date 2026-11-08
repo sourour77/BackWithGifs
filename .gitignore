@@ -22,4 +22,4 @@ recommendation_agent_results.csv
 # Local/testing utilities
 app_ui.py
 compute_kpis.py
-evaluation/
+evaluation//Shifa-app/
