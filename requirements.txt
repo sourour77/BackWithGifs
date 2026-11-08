@@ -1,8 +1,8 @@
 fastapi
-uvicorn
+uvicorn[standard]
 openai
 python-dotenv
 supabase
 pydantic
-requestsrapidfuzz
+requests
 rapidfuzz
