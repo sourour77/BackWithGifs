@@ -4,4 +4,5 @@ openai
 python-dotenv
 supabase
 pydantic
-requests
+requestsrapidfuzz
+rapidfuzz
